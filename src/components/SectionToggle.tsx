@@ -4,12 +4,16 @@ import { Eye, EyeOff, GripVertical } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 
+import { useShallow } from 'zustand/react/shallow';
+
 export function SectionToggle() {
-  const { sections, toggleSectionVisibility, reorderSections } = usePortfolioStore((state) => ({
-    sections: state.websiteConfig.sections,
-    toggleSectionVisibility: state.toggleSectionVisibility,
-    reorderSections: state.reorderSections,
-  }));
+  const { sections, toggleSectionVisibility, reorderSections } = usePortfolioStore(
+    useShallow((state) => ({
+      sections: state.websiteConfig.sections,
+      toggleSectionVisibility: state.toggleSectionVisibility,
+      reorderSections: state.reorderSections,
+    }))
+  );
 
   const sortedSections = [...sections].sort((a, b) => a.order - b.order);
 

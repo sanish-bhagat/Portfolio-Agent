@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { usePortfolioStore, DeploymentPlatform } from '@/store/portfolioStore';
+import { deploy_site_tool, store_user_state_tool } from '@/services/agent/tools';
 import {
   Dialog,
   DialogContent,
@@ -26,24 +27,41 @@ const platforms: { id: DeploymentPlatform; name: string; logo: string }[] = [
 
 export function DeployModal({ open, onOpenChange }: DeployModalProps) {
   const navigate = useNavigate();
-  const { deployment, setDeploymentPlatform, setDeploymentStatus } = usePortfolioStore((state) => ({
-    deployment: state.deployment,
-    setDeploymentPlatform: state.setDeploymentPlatform,
-    setDeploymentStatus: state.setDeploymentStatus,
-  }));
+  const { userId, deployment, setDeploymentPlatform, setDeploymentStatus, cvData, websiteConfig } = usePortfolioStore();
 
   const [copied, setCopied] = useState(false);
 
   const handleDeploy = async () => {
+    if (!userId) {
+      toast.error('Session expired. Please re-upload your CV.');
+      return;
+    }
+
     setDeploymentStatus('deploying');
     
-    // Simulate deployment
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-    
-    const mockUrl = `https://my-portfolio-${Math.random().toString(36).slice(2, 8)}.${deployment.platform}.app`;
-    setDeploymentStatus('success', mockUrl);
-    toast.success('Your portfolio has been deployed!');
+    try {
+      // Tool 7: Deployment Tool
+      const result = await deploy_site_tool(userId, deployment.platform);
+      
+      setDeploymentStatus('success', result.live_url);
+      
+      // Store deployment metadata
+      await store_user_state_tool(userId, {
+        cvData,
+        websiteConfig,
+        deployment: { ...deployment, status: 'success', url: result.live_url },
+        currentStep: 'deploy',
+        deployedAt: new Date().toISOString()
+      });
+      
+      toast.success('Your portfolio has been deployed!');
+    } catch (error) {
+      console.error('Deployment failed:', error);
+      setDeploymentStatus('error', undefined, 'Failed to deploy site.');
+      toast.error('Deployment failed. Please try again.');
+    }
   };
+
 
   const copyUrl = () => {
     if (deployment.url) {

@@ -7,6 +7,7 @@ import { EditableCard } from '@/components/EditableCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { generate_site_tool, store_user_state_tool } from '@/services/agent/tools';
 import {
   Dialog,
   DialogContent,
@@ -24,10 +25,29 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useShallow } from 'zustand/react/shallow';
 
 export default function ReviewPage() {
   const navigate = useNavigate();
-  const { cvData, setCurrentStep, updatePersonalInfo } = usePortfolioStore();
+  const { 
+    cvData, 
+    userId,
+    setCurrentStep, 
+    updatePersonalInfo, 
+    updateSummary, 
+    websiteConfig, 
+    deployment 
+  } = usePortfolioStore(
+    useShallow((state) => ({
+      cvData: state.cvData,
+      userId: state.userId,
+      setCurrentStep: state.setCurrentStep,
+      updatePersonalInfo: state.updatePersonalInfo,
+      updateSummary: state.updateSummary,
+      websiteConfig: state.websiteConfig,
+      deployment: state.deployment,
+    }))
+  );
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Record<string, string>>({});
 
@@ -47,12 +67,12 @@ export default function ReviewPage() {
     setEditingSection(section);
     if (section === 'personal') {
       setEditForm({
-        fullName: cvData.personalInfo.fullName,
-        title: cvData.personalInfo.title,
-        email: cvData.personalInfo.email,
-        phone: cvData.personalInfo.phone,
-        location: cvData.personalInfo.location,
-        summary: cvData.personalInfo.summary,
+        full_name: cvData.personal_info?.full_name || '',
+        headline: cvData.personal_info?.headline || '',
+        email: cvData.personal_info?.email || '',
+        phone: cvData.personal_info?.phone || '',
+        location: cvData.personal_info?.location || '',
+        summary: cvData.summary || '',
       });
     }
   };
@@ -60,21 +80,48 @@ export default function ReviewPage() {
   const handleSave = () => {
     if (editingSection === 'personal') {
       updatePersonalInfo({
-        fullName: editForm.fullName,
-        title: editForm.title,
+        full_name: editForm.full_name,
+        headline: editForm.headline,
         email: editForm.email,
         phone: editForm.phone,
         location: editForm.location,
-        summary: editForm.summary,
       });
+      updateSummary(editForm.summary);
       toast.success('Personal information updated!');
     }
     setEditingSection(null);
   };
 
-  const handleContinue = () => {
-    setCurrentStep('preview');
-    navigate('/preview');
+  const handleContinue = async () => {
+    if (!userId) {
+      toast.error('Session expired. Please re-upload your CV.');
+      return;
+    }
+
+    try {
+      toast.loading('Generating your portfolio...');
+      
+      // Call the backend to generate the site
+      await generate_site_tool(userId, websiteConfig.theme);
+      
+      setCurrentStep('preview');
+      
+      // Store confirmed state
+      await store_user_state_tool(userId, {
+        cvData,
+        websiteConfig,
+        deployment,
+        currentStep: 'preview'
+      });
+      
+      toast.dismiss();
+      toast.success('Portfolio generated!');
+      navigate('/preview');
+    } catch (error) {
+      console.error('[ReviewPage] Failed to generate site:', error);
+      toast.dismiss();
+      toast.error('Failed to generate portfolio. Please try again.');
+    }
   };
 
   return (
@@ -129,16 +176,16 @@ export default function ReviewPage() {
             >
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-2xl font-bold font-display">{cvData.personalInfo.fullName}</p>
-                  <p className="text-primary font-medium">{cvData.personalInfo.title}</p>
+                  <p className="text-2xl font-bold font-display">{cvData.personal_info?.full_name || 'No Name'}</p>
+                  <p className="text-primary font-medium">{cvData.personal_info?.headline || 'No Headline'}</p>
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>{cvData.personalInfo.email}</p>
-                  <p>{cvData.personalInfo.phone}</p>
-                  <p>{cvData.personalInfo.location}</p>
+                  <p>{cvData.personal_info?.email}</p>
+                  <p>{cvData.personal_info?.phone}</p>
+                  <p>{cvData.personal_info?.location}</p>
                 </div>
               </div>
-              <p className="mt-4 text-muted-foreground">{cvData.personalInfo.summary}</p>
+              <p className="mt-4 text-muted-foreground">{cvData.summary}</p>
             </EditableCard>
 
             {/* Skills */}
@@ -147,14 +194,21 @@ export default function ReviewPage() {
               icon={<Code className="h-5 w-5" />}
               onEdit={() => handleEdit('skills')}
             >
-              <div className="flex flex-wrap gap-2">
-                {cvData.skills.map((skill) => (
-                  <span
-                    key={skill.id}
-                    className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium"
-                  >
-                    {skill.name}
-                  </span>
+              <div className="space-y-4">
+                {cvData.skills && Object.entries(cvData.skills).map(([category, skills]) => (
+                  <div key={category}>
+                    <h4 className="text-sm font-semibold capitalize mb-2">{category}</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.isArray(skills) && skills.map((skill: string, i: number) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </EditableCard>
@@ -166,23 +220,22 @@ export default function ReviewPage() {
               onEdit={() => handleEdit('experience')}
             >
               <div className="space-y-6">
-                {cvData.experience.map((exp) => (
-                  <div key={exp.id} className="border-l-2 border-primary/20 pl-4">
+                {Array.isArray(cvData.experience) && cvData.experience.map((exp, index) => (
+                  <div key={index} className="border-l-2 border-primary/20 pl-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="font-semibold">{exp.position}</h4>
+                        <h4 className="font-semibold">{exp.role}</h4>
                         <p className="text-primary text-sm">{exp.company}</p>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
+                        {exp.duration}
                       </span>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{exp.description}</p>
                     <ul className="mt-2 space-y-1">
-                      {exp.highlights.map((highlight, i) => (
+                      {Array.isArray(exp.description) && exp.description.map((item, i) => (
                         <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
                           <span className="text-primary">•</span>
-                          {highlight}
+                          {item}
                         </li>
                       ))}
                     </ul>
@@ -198,15 +251,15 @@ export default function ReviewPage() {
               onEdit={() => handleEdit('projects')}
             >
               <div className="grid md:grid-cols-2 gap-4">
-                {cvData.projects.map((project) => (
+                {Array.isArray(cvData.projects) && cvData.projects.map((project, index) => (
                   <div
-                    key={project.id}
+                    key={index}
                     className="p-4 rounded-xl bg-muted/50 border border-border"
                   >
-                    <h4 className="font-semibold">{project.name}</h4>
+                    <h4 className="font-semibold">{project.title}</h4>
                     <p className="mt-1 text-sm text-muted-foreground">{project.description}</p>
                     <div className="mt-3 flex flex-wrap gap-1">
-                      {project.technologies.map((tech) => (
+                      {Array.isArray(project.technologies) && project.technologies.map((tech) => (
                         <span
                           key={tech}
                           className="px-2 py-0.5 rounded bg-background text-xs font-medium"
@@ -227,15 +280,14 @@ export default function ReviewPage() {
               onEdit={() => handleEdit('education')}
             >
               <div className="space-y-4">
-                {cvData.education.map((edu) => (
-                  <div key={edu.id}>
+                {Array.isArray(cvData.education) && cvData.education.map((edu, index) => (
+                  <div key={index}>
                     <h4 className="font-semibold">{edu.institution}</h4>
                     <p className="text-primary text-sm">
-                      {edu.degree} in {edu.field}
+                      {edu.degree}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {edu.startDate} - {edu.endDate}
-                      {edu.gpa && ` • GPA: ${edu.gpa}`}
+                      {edu.duration}
                     </p>
                   </div>
                 ))}
@@ -269,15 +321,15 @@ export default function ReviewPage() {
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Full Name</label>
                 <Input
-                  value={editForm.fullName || ''}
-                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                  value={editForm.full_name || ''}
+                  onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Title</label>
+                <label className="text-sm font-medium mb-1.5 block">Headline</label>
                 <Input
-                  value={editForm.title || ''}
-                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  value={editForm.headline || ''}
+                  onChange={(e) => setEditForm({ ...editForm, headline: e.target.value })}
                 />
               </div>
             </div>

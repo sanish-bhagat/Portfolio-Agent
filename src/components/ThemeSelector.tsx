@@ -24,11 +24,15 @@ const themes: { id: ThemeType; name: string; icon: React.ReactNode; description:
   },
 ];
 
+import { useShallow } from 'zustand/react/shallow';
+
 export function ThemeSelector() {
-  const { theme, setTheme } = usePortfolioStore((state) => ({
-    theme: state.websiteConfig.theme,
-    setTheme: state.setTheme,
-  }));
+  const { theme, setTheme } = usePortfolioStore(
+    useShallow((state) => ({
+      theme: state.websiteConfig.theme,
+      setTheme: state.setTheme,
+    }))
+  );
 
   return (
     <div className="space-y-3">

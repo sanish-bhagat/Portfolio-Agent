@@ -1,66 +1,55 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// Types for CV data
+// Types for CV data (Aligned with Agent Tool instructions)
 export interface PersonalInfo {
-  fullName: string;
+  full_name: string;
+  headline: string;
   email: string;
   phone: string;
   location: string;
-  title: string;
-  summary: string;
-  linkedin?: string;
-  github?: string;
-  website?: string;
+  linkedin: string;
+  github: string;
+  portfolio: string;
 }
 
-export interface Skill {
-  id: string;
-  name: string;
-  level?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  category?: string;
+export interface Skills {
+  technical: string[];
+  tools: string[];
+  soft: string[];
 }
 
 export interface Experience {
-  id: string;
+  role: string;
   company: string;
-  position: string;
-  location?: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
-  description: string;
-  highlights: string[];
+  location: string;
+  duration: string;
+  description: string[];
 }
 
 export interface Project {
-  id: string;
-  name: string;
+  title: string;
   description: string;
   technologies: string[];
-  url?: string;
-  github?: string;
-  image?: string;
+  link: string;
 }
 
 export interface Education {
-  id: string;
-  institution: string;
   degree: string;
-  field: string;
-  startDate: string;
-  endDate?: string;
-  current: boolean;
-  gpa?: string;
-  highlights: string[];
+  institution: string;
+  location: string;
+  duration: string;
 }
 
 export interface CVData {
-  personalInfo: PersonalInfo;
-  skills: Skill[];
+  personal_info: PersonalInfo;
+  summary: string;
+  skills: Skills;
   experience: Experience[];
   projects: Project[];
   education: Education[];
+  certifications: string[];
+  achievements: string[];
 }
 
 // Types for website configuration
@@ -99,14 +88,21 @@ interface PortfolioStore {
   currentStep: BuilderStep;
   setCurrentStep: (step: BuilderStep) => void;
 
+  // User ID from backend
+  userId: string | null;
+  setUserId: (id: string) => void;
+
   // CV Data
   cvData: CVData | null;
   setCVData: (data: CVData) => void;
   updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
-  updateSkills: (skills: Skill[]) => void;
+  updateSummary: (summary: string) => void;
+  updateSkills: (skills: Skills) => void;
   updateExperience: (experience: Experience[]) => void;
   updateProjects: (projects: Project[]) => void;
   updateEducation: (education: Education[]) => void;
+  updateCertifications: (certifications: string[]) => void;
+  updateAchievements: (achievements: string[]) => void;
 
   // Website Config
   websiteConfig: WebsiteConfig;
@@ -141,6 +137,7 @@ const defaultSections: SectionConfig[] = [
 
 const initialState = {
   currentStep: 'landing' as BuilderStep,
+  userId: null,
   cvData: null,
   websiteConfig: {
     theme: 'modern' as ThemeType,
@@ -161,6 +158,8 @@ export const usePortfolioStore = create<PortfolioStore>()(
 
       setCurrentStep: (step) => set({ currentStep: step }),
 
+      setUserId: (id) => set({ userId: id }),
+
       setCVData: (data) => set({ cvData: data }),
 
       updatePersonalInfo: (info) => {
@@ -169,9 +168,16 @@ export const usePortfolioStore = create<PortfolioStore>()(
           set({
             cvData: {
               ...current,
-              personalInfo: { ...current.personalInfo, ...info },
+              personal_info: { ...current.personal_info, ...info },
             },
           });
+        }
+      },
+
+      updateSummary: (summary) => {
+        const current = get().cvData;
+        if (current) {
+          set({ cvData: { ...current, summary } });
         }
       },
 
@@ -200,6 +206,20 @@ export const usePortfolioStore = create<PortfolioStore>()(
         const current = get().cvData;
         if (current) {
           set({ cvData: { ...current, education } });
+        }
+      },
+
+      updateCertifications: (certifications) => {
+        const current = get().cvData;
+        if (current) {
+          set({ cvData: { ...current, certifications } });
+        }
+      },
+
+      updateAchievements: (achievements) => {
+        const current = get().cvData;
+        if (current) {
+          set({ cvData: { ...current, achievements } });
         }
       },
 
@@ -244,6 +264,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
     {
       name: 'portfolio-builder-storage',
       partialize: (state) => ({
+        userId: state.userId,
         cvData: state.cvData,
         websiteConfig: state.websiteConfig,
         currentStep: state.currentStep,

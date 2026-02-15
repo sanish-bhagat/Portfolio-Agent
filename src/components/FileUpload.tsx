@@ -20,7 +20,7 @@ export function FileUpload({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const validateFile = (file: File): boolean => {
+  const validateFile = useCallback((file: File): boolean => {
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
     if (!acceptedTypes.includes(extension)) {
       setError(`Please upload a ${acceptedTypes.join(' or ')} file`);
@@ -28,7 +28,7 @@ export function FileUpload({
     }
     setError(null);
     return true;
-  };
+  }, [acceptedTypes]);
 
   const handleFile = useCallback(
     (file: File) => {
@@ -37,7 +37,7 @@ export function FileUpload({
         onFileSelect(file);
       }
     },
-    [onFileSelect, acceptedTypes]
+    [onFileSelect, validateFile]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
