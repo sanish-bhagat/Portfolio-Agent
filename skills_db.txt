@@ -1,0 +1,1284 @@
+Haskell
+incremental development
+KDevelop
+Absorb (learning management systems)
+develop blockchain innovative architectures
+network engineering
+migrate existing data
+define database physical structure
+Maltego
+operate radio equipment
+Erlang
+manage ICT data classification
+information structure
+manage temporary ICT networks for live performance
+keep up with digital transformation of industrial processes
+set up office equipment
+SAS language
+use an application-specific interface
+design electrical systems
+define firewall rules
+operate warehouse record systems
+CryEngine
+use CAD for soles
+create 3D environments
+perform online data analysis
+manage IT security compliances
+keywords in digital content
+domain name service
+model medical devices
+use experience map
+captioning software
+blockchain signature schemes
+normalise data
+create prototype of user experience solutions
+apply system organisational policies
+propose ICT solutions to business problems
+calculate costs of repair operations
+property management software
+operate media integration systems
+computer simulation
+WizIQ
+administer ICT system
+execute social engineering tests
+manage research data
+digital printing
+Cain and Abel (penetration testing tool)
+systems development life-cycle
+transportation software related to an ERP system
+operate automated process control
+manage ICT change request process
+use interface description language
+plan migration to cloud
+use radar navigation
+implement route planning in smart mobility services
+Agile project management
+modern power signalling systems
+network management system tools
+use markup languages
+develop automated migration methods
+use modern electronic navigational aids
+translate formulae into processes
+manage donor database
+RAGE (digital game creation systems)
+assess integrated domotics systems
+Ruby (computer programming)
+Common Lisp
+collect weather-related data
+optimise fleet usability
+Apache Maven
+gather data
+deliver online training
+ICT network routing
+internal risk management policy
+assess ICT knowledge
+translate requirement concepts into content
+Lisp
+maintain freelance database
+digital game genres
+automotive engineering
+analyse decentralised applications
+assistive technology in education
+model power electronics
+green computing
+building systems monitoring technology
+transfer uncut audiovisual material to computer
+Informatica PowerCenter
+conduct analysis of ship data
+human-robot collaboration
+systems thinking
+Apache Tomcat
+edit negatives
+ethical hacking principles
+software UI design patterns
+Sass
+design cloud architecture
+establish an ICT security prevention plan
+use global distribution system
+hardware platforms
+design power electronics
+computer forensics
+marketing analytics
+information security strategy
+design interaction model
+interactive media
+test improved aeronautical information management systems
+mix ink
+maintain pricing database
+optical character recognition software
+particle animation
+Visual Basic
+alarm systems
+blockchain components
+business intelligence
+manage digital libraries
+telecommunications engineering
+solve technical problems
+Adobe Photoshop
+implement ICT security policies
+IBM InfoSphere DataStage
+provide connected car solutions
+operate electronic payment terminals
+energy saving potential of automated shift systems
+web analytics
+design firmware
+use e-health and mobile health technologies
+use e-services
+digital journalism
+utilise computer-aided software engineering tools
+Edmodo
+screen reader
+conduct impact evaluation of ICT processes on business
+apply 3D imaging techniques
+manage alarm system
+develop data link services for navigation purposes
+use spreadsheets software
+Java (computer programming)
+maintain information network hardware
+use a complex communication system
+creatively use digital technologies
+operate automatic cutting systems for footwear and leather goods
+record audio materials
+create animated narratives
+use data processing techniques
+MDX
+information architecture
+use creative suite software
+principles of animation
+cloud security and compliance
+use chromatography software
+Shiva (digital game creation systems)
+design pharmaceutical manufacturing systems
+wire security sensors
+OWASP ZAP
+evaluate data, information and digital content
+solution deployment
+Drupal
+manage changes in ICT system
+manage technical security systems
+identify blockchain innovation opportunities
+solve problems in gambling through digital means
+operate control panels
+crowdfunding
+Angular
+use specialised computer models for weather forecasting
+set up sound equipment
+keep up with the latest information systems solutions
+set up consumer electronics
+disassemble mobile devices
+design computer network
+repair lockable devices
+cryptocurrency
+embedded systems
+Engrade
+computer programming
+broadcast equipment
+automatic meter reading
+use water navigation devices
+use presentation software
+identify digital competence gaps
+Oracle Warehouse Builder
+interfacing techniques
+music and video industry
+software architecture models
+software frameworks
+decentralized application frameworks
+debug software
+manage aeronautical information management services
+motion capture
+use concurrent programming
+model based system engineering
+use rental management software
+data mining
+aircraft flight control systems
+set colour profiles
+LESS
+CAM software
+design a domotic system in buildings
+supervise video and motion picture editing team
+Adobe Illustrator
+create a crowdfunding campaign
+align software with system architectures
+food waste monitoring systems
+Nessus
+perform forensic preservations of digital devices
+operate voice picking systems
+design infrastructure for surface mines
+prepare exhibition marketing plan
+blockchain architecture
+cutting technologies
+manage database
+report live online
+manage system security
+use media software
+speech recognition
+3D printing process
+develop translation memory software
+use computer telephony integration
+operate open source software
+collaborate through digital technologies
+electronic locks
+use capturing systems for live performance
+use software design patterns
+collect mapping data
+perform data analysis
+Prolog (computer programming)
+design process
+use logic programming
+translate requirements into visual design
+establish data processes
+ICT network security risks
+create digital files
+operate tote board
+computer history
+Octopus Deploy
+maintain irrigation controllers
+operate port communications systems
+use meteorological tools to forecast meteorological conditions
+OpenEdge Advanced Business Language
+conduct video telemetry
+operate two-way radio systems
+create concept of digital game
+support audio system installation
+use ICT systems
+micro mobility devices
+set up multimedia equipment
+procurement of ICT network equipment
+machine translation
+use polygonal modelling
+carry out research on ground systems
+protect personal data and privacy
+output electronic files
+iterative development
+digital identity management
+process data from railway control rooms
+visual presentation techniques
+pay-per-click
+ICT hardware specifications
+manage library users queries
+test power electronics
+manage multi frequency wireless signal distribution
+printing on large scale machines
+use thermal management
+digitise documents
+create online news content
+geographic information systems
+e-procurement
+apply tools for content development
+apply statistical analysis techniques
+do cloud refactoring
+knowledge base
+digital systems
+run a media server
+explain blockchain implications
+machine learning
+CADD software
+Oracle Data Integrator
+create software design
+ICT quality policy
+distributed ledger technology
+create SCORM packages
+use specialised design software
+use software for data preservation
+use computer-aided engineering systems
+observe celestial objects
+operate maritime communication equipment
+digital compositing
+JavaScript
+decision support systems
+DB2
+optimise choice of ICT solution
+Microsoft Access
+file documents
+design web-based courses
+assemble hardware components
+ICT accessibility standards
+perform dimensionality reduction
+3D texturing
+printed circuit boards testing methods
+data warehouse
+XQuery
+design ICT hardware placement
+ICT security standards
+share through digital technologies
+Perl
+provide online help
+test ground system performance
+create advocacy material
+distribute control signals
+collect real-time geolocation information
+use pipeline video equipment
+provide ICT system training
+monitor quality of broadcasts
+industrial software
+analyse blockchain use cases
+perform data mining
+Pentaho Data Integration
+emergent technologies
+Smalltalk (computer programming)
+identify technological needs
+PHP
+software anomalies
+database
+digital marketing techniques
+OpenEdge Database
+respond to incidents in cloud
+operate video equipment
+use geographic information systems
+use databases
+create game testing software
+recognise blockchain application areas
+Xcode
+video-games trends
+operate stowage programmes
+supercomputing
+install mechatronic equipment
+decentralised identifiers
+use technology for forensics
+image recognition
+assess users' interaction with ICT applications
+inter-organisational middleware system
+integrate ICT data
+prevent technical problems with media integration systems
+develop computer vision system
+manage radiology information system
+use performance 3D visualisation techniques
+analyse big data
+Assembly (computer programming)
+system backup best practice
+Spiral development
+analyse pipeline database information
+software components libraries
+add computer components
+Schoology
+data engineering
+establish an Information Security Management System
+compile GIS-data
+ObjectStore
+smart contract programming languages
+Chef (tools for software configuration management)
+electronic and telecommunication equipment
+customise software for drive system
+GIMP (graphics editor software)
+apply desktop publishing techniques
+use business simulation tools
+hardware components
+implement ICT coding conventions
+prepare sound equipment on stage
+search engines
+C#
+tend CNC milling machine
+microsystem test procedures
+analyse scanned data of the body
+manage ICT data architecture
+manage data, information and digital content
+MySQL
+design cloud networks
+use specialised equipment
+TripleStore
+design failover solutions
+evaluate blockchain architectures
+telecommunication trunking
+manage findable accessible interoperable and reusable data
+upgrade firmware
+handle geospatial technologies
+firmware
+carry out bibliographic work
+control systems
+put uncut recordings into computer
+attack vectors
+Metasploit
+build recommender systems
+internet governance
+social media marketing techniques
+perform data cleansing
+tend CNC metal punch press
+R
+set up audiovisual peripheral equipment
+identify market requirements for ICT documentation
+model electromagnetic products
+use e-tourism platforms
+test hardware
+use functional neuroimaging
+Groovy
+manage online communications
+social media management
+use electronic health records management system
+create a product's virtual model
+hardware testing methods
+analyse ecological data
+Vyper
+use technical drawing software
+analyse network configuration and performance
+create digital game characters
+use production planning software
+algorithms
+LAMS
+manage information access aids
+online gambling
+set up cybersecurity training programmes
+use CADD software
+proxy servers
+conduct clinical software research
+Aircrack (penetration testing tool)
+Codenvy
+use software tools for site modelling
+repair mobile devices
+artificial neural networks
+medical imaging technology
+use content management system software
+ASP.NET
+digital camera sensors
+repair maritime communication equipment
+manage quantitative data
+operate seismic equipment
+use online tools to collaborate
+set up documentation control system
+Backbox (penetration testing tool)
+manage membership database
+cyber attack counter-measures
+set up media integration systems
+use remote control equipment
+APL
+SQL
+technical drawings
+maintain sensor equipment
+weigh in motion system
+coordinate audio system programmes
+integrate and re-elaborate digital content
+scientific computing
+program sound cues
+develop geological databases
+use object-oriented programming
+develop inclusive communication material
+object-oriented modelling
+synchronise with mouth movements
+WebCMS
+use ICT resources to solve work related tasks
+demonstrate functionality of software products
+adapt to new technology used in cars
+manage online volunteers
+blockchain applications
+perform video editing
+communicate using the global maritime distress and safety system
+use thermal analysis
+plan software testing
+maintain computerised records of railway traffic
+virtual reality
+use access control software
+SPARQL
+apply colour grading
+research website users
+control production flow remotely
+use scripting programming
+e-learning
+create digital images
+develop digital content
+collection management software
+use free typing techniques
+ICT debugging tools
+Brightspace (learning management systems)
+Solidity
+ICT capacity planning strategies
+define celestial bodies
+store digital data and systems
+design a media integration system
+deploy cloud resource
+select recording source
+integrated circuit types
+hardware materials
+Kali Linux
+ICT sales methodologies
+test wireless devices
+promote virtual reality travelling experiences
+roofing drones
+analyse stress resistance of products
+online job platforms
+quantitative analysis
+improve customer traveling experiences with augmented reality
+Outsourcing model
+Puppet (tools for software configuration management)
+use ICT ticketing system
+programmable logic controller
+use ICT hardware
+manage disaster recovery plans
+plot show control cues
+use computer programs to improve patients' skills
+apply social media marketing
+data visualisation software
+blockchain application areas
+building automation
+smart contract
+hybrid model
+analyse blood samples
+stay up to date with social media
+adjust video transmissions
+use analytics for commercial purposes
+operate automated stage movement control system
+manage meteorological database
+information extraction
+utilise regular expressions
+blockchain concept application
+web programming
+implement ICT risk management
+STAF
+printed circuit boards
+develop automated software tests
+audit techniques
+operate imagesetter
+Waterfall development
+maintain responsive design
+manage office facility systems
+create 3D characters
+maintain system logs
+operate digital hardware
+process collected survey data
+Vagrant
+maintain broadcast equipment
+Monte Carlo simulation
+develop with cloud services
+Eclipse (integrated development environment software)
+draw up stage layouts digitally
+design database scheme
+consumer electronics
+learning management systems
+technically design a sound system
+WordPress
+test sensors
+conserve new media
+maintain audiovisual equipment
+ICT communications protocols
+3D lighting
+global navigation satellite system performance parameters
+solve location and navigation problems by using GPS tools
+tend CNC grinding machine
+SQL Server Integration Services
+Ansible
+use methods of logistical data analysis
+ICT system integration
+study website behaviour patterns
+broadcast using Internet Protocol
+Cisco
+sensors
+building's electronic access equipment
+Oracle WebLogic
+Prince2 project management
+implement data quality processes
+unified modelling language
+adobe creative suite
+deploy ICT systems
+transmission technology
+automatic control system
+utilise content types
+develop ICT test suite
+install image equipment
+operate an audio mixing console
+maintain robotic equipment
+operate relational database management system
+plan digital marketing
+use communication equipment
+digital twin technology
+operate 2D CAD for footwear
+perform ICT troubleshooting
+task algorithmisation
+locate microchip in animals
+plan social media marketing campaigns
+online ads campaign techniques
+develop ICT workflow
+tools for ICT test automation
+design brand's online communication plan
+operate control systems
+use query languages
+create CAD drawings
+use CAD for heels
+read 3D displays
+NoSQL
+maintain a central project repository
+identify software for warehouse management
+computational fluid dynamics
+ICT help platforms
+design circuit boards
+ICT security legislation
+conduct threat intelligence
+provide software testing documentation
+use internet to increase sales
+technology education
+test microelectronics
+perform software unit testing
+develop software prototype
+smart grids systems
+use communication devices
+collect ICT data
+modify textile designs
+use CAM software
+robotic components
+monitor automated machines
+convert scribbles into virtual sketches
+analyse ICT system
+computer vision
+GameSalad
+computer science
+John The Ripper (penetration testing tool)
+operate private branch exchange
+use a warehouse management system
+blockchain-based services regulation
+use typesetting software
+use IT systems for commercial purposes
+operate automated optical inspection machine
+use automatic programming
+develop shipping itineraries
+develop virtual game engine
+predictive maintenance
+operate on-board computer systems
+design the digital interface of gambling, betting and lottery games
+keep up-to-date to computer trends
+execute ICT audits
+design database in the cloud
+animate 3D organic forms
+attend to ICT systems quality
+assessment of risks and threats
+telecom regulations
+graphic design
+learning technologies
+assemble robots
+manage online gambling
+cyber security
+manage flight data communications programme
+e-tailoring
+use word processing software
+handle cybersecurity incidents
+install automation components
+IBM InfoSphere Information Server
+ATM systems
+evaluate information services using metrics
+CAE software
+simulate transport problems
+use back-up and recovery tools
+define roadmap for blockchain in applications
+service-oriented modelling
+innovate in ICT
+remove computer virus or malware from a computer
+utilise machine learning
+Microsoft Visual C++
+self-service technologies in tourism
+oversee development of software
+configure media integration systems
+IBM Informix
+core banking software
+create database diagrams
+set scanner controls
+SketchBook Pro
+produce textile designs
+develop ICT device driver
+contribute to development of biometric systems
+levels of software testing
+manage ICT legacy implication
+install electronic communication equipment
+prepare detailed working drawings for interior design
+TypeScript
+operate signal generator
+World Wide Web Consortium standards
+Microsoft Visio
+assistive instruments
+Oracle Application Development Framework
+JSSS
+analyse clothing 3d prototypes
+maintain data entry requirements
+improve user-friendliness
+manage computer-based transport operation control systems
+tend CNC drilling machine
+distributed computing
+quantum technology
+implement smart contracts
+computer engineering
+use a telecine
+microprocessors
+BlackArch
+develop e-learning plan
+operate remote broadcast equipment
+motion graphics
+use software libraries
+blockchain terminology
+e-learning software infrastructure
+Ajax Framework
+apply precision farming
+operate medical imaging equipment
+record data from biomedical tests
+use shorthand computer program
+maintain automated lighting equipment
+log transmitter readings
+manage dispatch software systems
+cloud monitoring and reporting
+analyse milk control test results
+design process for blockchain-based systems
+digital curation
+operate train integrated electronic control centre
+Wireshark
+forecast future ICT network needs
+interpret graphical recordings of rail-flaw-detection machine
+software design methodologies
+use digital illustration techniques
+use 3D scanners for clothing
+web application security threats
+blockchain platforms
+create data sets
+perform computer analyses of geotechnical structures
+acquire system component
+airspace system block upgrades
+human-computer interaction
+maintain projection equipment
+execute software tests
+maritime telecommunications
+monitor system performance
+use reservoir surveillance
+perform image editing
+integrated development environment software
+apply digital mapping
+oversee aircraft sensor and recording systems
+Grovo
+provide training on e-learning
+information categorisation
+develop blockchain technology
+web based collaborative platforms
+digital image processing
+create freight rate databases
+ICT project management
+research remote sensing technologies
+electronics
+use computer-aided translation
+digital game creation systems
+Rapid application development
+apply ICT system usage policies
+manage content metadata
+e-agriculture
+mobile operating systems
+manage software releases
+3D modelling
+data analytics
+QlikView Expressor
+operate GPS systems
+use customer relationship management software
+business analytics
+blockchain applications security principles
+resource description framework query language
+CoffeeScript
+Objective-C
+healthcare data systems
+computer equipment
+ABBYY FineReader
+record multi-track sound
+use CAE software
+lay out digital written content
+JavaScript Framework
+design circuits using CAD
+balance database resources
+control objectives for information and related technology
+3D body scanning technologies
+prepare digital art for master photograph
+id Tech
+plan marketing campaigns
+edit digital moving images
+ICT software specifications
+estimate costs of installing telecommunication devices
+query languages
+data extraction, transformation and loading tools
+conduct ICT code review
+tools for software configuration management
+develop reporting software
+employ habitat survey techniques
+solve ICT system problems
+create thematic maps
+use sound measuring instruments
+database development tools
+data mining methods
+HeroEngine
+manage data
+computational linguistics
+mobility as a service
+automated optical inspection
+aquaculture production planning software
+conduct search engine optimisation
+interact through digital technologies
+search databases
+video-games functionalities
+Project Anarchy
+perform scrambling operations
+use computerised maintenance management systems
+hybrid control systems
+CAD software
+plan ICT capacity
+operate echo sounding equipment
+file-based workflow
+produce scanned images
+operate mailing information systems
+ICT problem management techniques
+collect customer data
+data protection
+use electronic health records in nursing
+design information system
+web strategy assessment
+locate fossils
+define integration strategy
+manufacturer's instructions for audiovisual equipment
+execute ICT user research activities
+ML (computer programming)
+IBM WebSphere
+use mine planning software
+create 3D CAD footwear prototypes
+audio technology
+unmanned air systems
+information confidentiality
+inspect data
+monitor online competitors
+LDAP
+multimedia systems
+electronic business
+graphics editor software
+install blinds drive systems
+colour grade images with digital intermediate
+Havok Vision
+apply reverse engineering
+data storage
+develop online community plan
+manage data collection systems
+Litmos
+digital media
+PostgreSQL
+intellectual property regime of digital content
+Sakai
+specify digital game scenes
+operate electronic measuring instruments
+analyse stress resistance of materials
+execute conversion testing
+digitization
+database management systems
+evaluate cost of software products
+maintain ICT identity management
+design database backup specifications
+operate digital printers
+augmented reality
+manage content development projects
+implement a virtual private network
+oversee clinical information system activities
+statistical analysis system software
+data security principles
+manage ICT virtualisation environments
+use sales forecasting softwares
+develop food scanner devices
+maintain radio communications equipment
+design chassis
+develop code exploits
+operate broadcast equipment
+outline blockchain-based identity management
+SPARK
+assist multimedia operator
+blockchain
+Parrot Security OS
+computer graphics
+use digital instruments
+design application interfaces
+manage closed-circuit television system
+Unreal Engine
+use communication and collaboration software
+online analytical processing
+Synfig
+ICT system programming
+tend CNC laser cutting machine
+e-commerce systems
+manage environmental management system
+adjust ICT system capacity
+Open source model
+WildFly
+medical informatics
+perform pill branding
+convert into animated object
+use CAD software
+assemble video tape footage
+apply blended learning
+configuration of the tote room hardware
+manage production systems
+configure ICT system
+types of satellites
+advise customers on type of computer equipment
+blockchain history
+repair ICT devices
+AJAX
+operate audio equipment
+database quality standards
+C++
+provide guidelines for content development
+develop digital educational materials
+manage digital documents
+work with virtual learning environments
+instrumentation engineering
+teach computer science
+ensure adherence to organisational ICT standards
+microelectromechanical systems
+mobile device software frameworks
+Computer Assisted Language Learning
+Filemaker (database management systems)
+operate computerised control systems
+repair equipment on site
+manage archive users guidelines
+digital arts
+model optical systems
+maintain internet protocol configuration
+perform virtual simulation
+BlackBerry
+trading software
+conduct web searches
+hardware industry
+create GIS reports
+Samurai Web Testing Framework
+develop statistical software
+computational mechanics
+implement anti-virus software
+define ICT network design policies
+mix live images
+SAP R3
+model hardware
+use e-procurement
+manage digital identity
+use audio reproduction software
+install monitors for process control
+cloud technologies
+health technology assessment
+measure software usability
+Frostbite (digital game creation systems)
+types of audiovisual formats
+create 3D texture map
+test system accessibility for users with special needs
+Swift (computer programming)
+ICT project management methodologies
+Moodle
+design hardware
+control engineering
+manage software localisation
+apply basic programming skills
+use colour printing programs
+real-time computing
+implement ICT network diagnostic tools
+program a CNC controller
+design microelectromechanical systems
+prepare visual data
+guide learners in using assistive technologies
+SQL Server
+integrate content into output media
+implement cloud security and compliance
+museum databases
+manage online content
+compile data for navigation publications
+edit recorded sound
+provide ICT support
+style sheet languages
+design dolls
+implement spam protection
+perform safety data analysis
+specialised astrology software
+install operating system
+MATLAB
+deliver visual presentation of data
+rig 3D characters
+ICT architectural frameworks
+desktop publishing
+CAD for footwear
+tend computer numerical control lathe machine
+implement front-end website design
+application usability
+protect the environment from the impact of the digital technologies
+blockchain design patterns
+design electromechanical systems
+unstructured data
+CA Datacom/DB
+cut raw footage digitally
+operate radar equipment
+computerised feeding systems
+advise on online dating
+Salt (tools for software configuration management)
+use intranet
+maintain computer hardware
+LINQ
+set up tote board
+Source (digital game creation systems)
+install software
+teach digital literacy
+work with e-services available to citizens
+use specific data analysis software
+online moderation techniques
+ICT recovery techniques
+cognitive computing
+ICT system user requirements
+transcribe texts
+audio editing software
+manage standards for data exchange
+use ultrasonic equipment
+apply ICT systems theory
+operate audio-signal processors
+projection equipment
+monitor ICT research
+data quality assessment
+Python (computer programming)
+business ICT systems
+Gamemaker Studio
+use pest detection sensors
+distributed ledger technologies vulnerabilities
+systems theory
+draw sketches to develop textile articles using softwares
+iOS
+explain distributed ledger technologies principles
+manage system testing
+model microelectronics
+automate cloud tasks
+program firmware
+office software
+perform backups
+mobile device management
+signal processing
+Canvas (learning management systems)
+manage website
+scan negatives
+ICT infrastructure
+operate life-saving appliances
+apply operations for an ITIL-based environment
+log emergency call information electronically
+have computer literacy
+type on electronic devices
+Unity (digital game creation systems)
+distributed directory information services
+protect health and well-being while using digital technologies
+supervise video quality
+recognise blockchain risks
+Joomla
+use functional programming
+manage cloud data and storage
+ICT encryption
+coordinate the allocation of Mode S radars to Interrogator Codes
+interpret automatic call distribution data
+GDPR
+authoring software
+Adobe Photoshop Lightroom
+use ICT equipment in maintenance activities
+identify GIS issues
+operate dealership management system
+design control systems
+quality control systems
+Scratch (computer programming)
+Process-based management
+smart city features
+computational chemistry
+blockchain-based business models
+operate collating machine
+types of digital badges
+publishing strategy
+maintain database performance
+ICT network cable limitations
+transfer medical information
+maintain media integration equipment
+network standards
+video conferencing tool
+domotic systems
+create digital content
+ethics of sharing work through social media
+operate scanner
+apply ICT terminology
+Taleo
+Android (mobile operating systems)
+collect data using GPS
+CAD for garment manufacturing
+post-processing of photographs
+vehicle-to-everything technologies
+set up the controller of a machine
+Teradata Database
+analyse network bandwidth requirements
+lean project management
+manage open publications
+program home alarm systems
+identify ICT system weaknesses
+support ICT system users
+use mathematical tools and equipment
+Agile development
+assemble telecommunications devices
+standards for web-based e-learning
+VBScript
+reed sensors
+develop ICT safety information
+align antennae with receiving dishes
+test computer hardware
+lead disaster recovery exercises
+computer technology
+create weather maps
+identify ICT user needs
+software interaction design
+penetration testing tool
+maintain stock control systems
+Oracle Relational Database
+electronic communication
+COBOL
+utilise decision support system
+edit photographs
+maintain control systems for automated equipment
+protect ICT devices
+conduct radiotherapy computer planning
+provide multimedia content
+design for organisational complexity
+hardware architectures
+analyse gambling data
+monitor communication channels' performance
+maintain warehouse database
+call-centre technologies
+establish an ICT customer support process
+troubleshoot website
+advanced driver assistant systems
+compare survey computations
+product data management
+test ICT queries
+monitor satellites
+design ventilation network
+evaluate musical ideas
+track changes in text editing
+prepare well data sheets
+browse, search and filter data, information and digital content
+Hadoop
+computational biology
+principles of artificial intelligence
+operate bale presses
+study radar images
+ICT market
+SAS Data Management
+implement a firewall
+manage keys for data protection
+CSS
+audiovisual equipment
+create 2D painting
+develop design plans
+software components suppliers
+maintain up-to-date aeronautical information management services
+content development processes
+WhiteHat Sentinel
+render 3D images
+MarkLogic
+audio mastering
+plot shipping navigation routes
+robotics
+Pascal (computer programming)
+operate sound live
+create moving images
+set up automotive robot
+use pattern-cutting softwares
+execute integration testing
+interpret graphical communication interfaces
+design optical prototypes
+ABAP
+use session border controller
+develop online sales business plan
+replicate customer software issues
+draft corporate emails
+adjust hearing aids
+set up basic recording
+maintain database security
+use translation memory software
+Prototyping development
+conduct mobile marketing
+ICT performance analysis methods
+analyse information systems
+integrate system components
+search engine optimisation
+data science
+create risk maps
+ICT environmental policies
+verify formal ICT specifications
+distributed ledger technologies consensus protocols
+create cadastral maps
+apply control process statistical methods
+develop animations
+create infrared imagery
+operate railway control panels
+mobile marketing
+enhance website visibility
+Nexpose
+implement cryptographic constructs
+manage standard enterprise resource planning system
+Internet of Things
+DevOps
+instruct library users in digital literacy
+create website wireframe
+install signal repeaters
+concepts of telecommunications
+use CAD for lasts
+explain characteristics of computer peripheral equipment
+analyse software specifications
+THC Hydra
+process data
+OmniPage
+operate an emergency communication system
+supervise data entry
+set up media storage
+use aeronautical mobile service communications
+convert different audiovisual formats
+use milk control software
+apply digital security measures
+Jenkins (tools for software configuration management)
+automation technology
+perform ICT security testing
+operate machine tools
+N1QL
+maintain ICT server
+operate 3D computer graphics software
+tend CNC engraving machine
+use IT tools
+ICT network simulation
+use microsoft office
+design component interfaces
+scan photos
+carry out forum moderation
+apply through-hole technology manually
+promote prevention of social isolation
+blockchain consensus mechanisms
+define software architecture
+web services
+ICT power consumption
+SAP Data Services
+follow up online user requests
+manage email hosting service
+develop data processing applications
+design automation components
+operating systems
+use fleet management system
+ICT networking hardware
+manage digital archives
+system design
+building information modelling
+ICT process quality models
+field-programmable gate arrays
+software metrics
+health informatics
+create data models
+maintain ICT system
+evaluate translation technologies
+implement ICT recovery system
+tune up wireless audio systems
+cybernetics
+install electronic communication devices on trains
+control panel components
+blockchain mining principles
+use special hearing equipment for tests
+collect cyber defence data
+design user interface
+implement data warehousing techniques
+manage ICT semantic integration
+use agricultural information systems and databases
+use personal organization software
+fibre optics
+identify ICT security risks
+design sensors
+design electronic systems
+set up broadcast equipment
+data models
+use internet chat
+perform software recovery testing
+microchip scanners
+perform energy simulations
+Capture One
+model sensor
+Scala
+natural language processing

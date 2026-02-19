@@ -1,0 +1,79 @@
+{
+  "programming_languages": [
+    "Python", "Java", "C", "C++", "C#", "Go", "Rust",
+    "JavaScript", "TypeScript", "Kotlin", "Swift",
+    "PHP", "Ruby", "Dart", "R", "MATLAB"
+  ],
+
+  "frontend": [
+    "HTML", "HTML5", "CSS", "CSS3",
+    "React", "Next.js", "Angular", "Vue.js",
+    "Svelte", "Bootstrap", "Tailwind CSS",
+    "Redux", "jQuery"
+  ],
+
+  "backend": [
+    "Node.js", "Express.js", "Spring Boot",
+    "Django", "Flask", "FastAPI",
+    "ASP.NET", "Laravel", "Ruby on Rails"
+  ],
+
+  "databases": [
+    "MySQL", "PostgreSQL", "MongoDB",
+    "SQLite", "Oracle", "SQL Server",
+    "Redis", "Cassandra", "DynamoDB",
+    "Supabase", "Firebase"
+  ],
+
+  "devops_cloud": [
+    "Docker", "Kubernetes", "AWS",
+    "Azure", "Google Cloud", "GCP",
+    "CI/CD", "Jenkins", "GitHub Actions",
+    "Terraform", "Ansible", "Vercel",
+    "Netlify", "Heroku"
+  ],
+
+  "data_ai": [
+    "Machine Learning", "Deep Learning",
+    "NLP", "Computer Vision",
+    "TensorFlow", "PyTorch", "Keras",
+    "Scikit-learn", "XGBoost",
+    "Pandas", "NumPy", "OpenCV",
+    "LLM", "Transformers",
+    "TF-IDF"
+  ],
+
+  "tools": [
+    "Git", "GitHub", "GitLab",
+    "Postman", "Swagger",
+    "Linux", "Bash",
+    "JIRA", "Figma",
+    "Selenium"
+  ],
+
+  "architecture": [
+    "Microservices", "REST",
+    "RESTful API", "GraphQL",
+    "Kafka", "RabbitMQ",
+    "Socket.io", "WebSockets",
+    "JWT", "OAuth",
+    "SSL", "TLS", "ACME Protocol"
+  ],
+
+  "mobile": [
+    "React Native",
+    "Flutter",
+    "Android",
+    "iOS",
+    "Expo"
+  ],
+
+  "blockchain": [
+    "Solidity",
+    "Web3.js",
+    "Ethereum",
+    "Polygon",
+    "IPFS",
+    "Smart Contracts"
+  ]
+}

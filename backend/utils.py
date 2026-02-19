@@ -3,6 +3,16 @@ from io import BytesIO
 import re
 import pdfplumber
 import requests
+import spacy
+import json
+
+def load_json(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+TECH_SKILL_DATABASE = load_json(r"C:\Users\Sanish Bhagat\project\Portfolio-Agent\backend\data\skills\skills_master.json")
+
 
 REQUEST_HEADERS = {
     "User-Agent": "resume-parser/1.0"
@@ -29,23 +39,28 @@ def extract_text_from_pdf(url):
         return ""
 
 
+nlp = spacy.load("en_core_web_lg")
+
 def extract_name(text):
     """
-    Extract name from top of resume.
-    Heuristic: First non-empty line with 2-4 words and capitalized.
+    Extract candidate PERSON entities from top of resume.
     """
-    lines = text.split("\n")
+    doc = nlp(text[:1000])  # only analyze first part for speed
 
-    for line in lines[:10]:  # check first 10 lines
-        stripped = line.strip()
-        if not stripped:
-            continue
+    persons = [
+        ent.text.strip()
+        for ent in doc.ents
+        if ent.label_ == "PERSON"
+    ]
 
-        words = stripped.split()
-        if 2 <= len(words) <= 4 and all(w[0].isupper() for w in words if w.isalpha()):
-            return stripped
+    # Filter short/noisy entities
+    persons = [
+        p for p in persons
+        if 2 <= len(p.split()) <= 4
+    ]
 
-    return ""
+    return persons[0] if persons else ""
+
 
 
 def extract_contact_details(text):
@@ -84,14 +99,25 @@ COMMON_SKILLS = [
 
 
 def extract_skills(text):
-    found = []
+    """
+    Extract all skills mentioned in CV.
+    Priority:
+    1. Skills section extraction
+    2. Pattern-based extraction (comma / bullet separated lists)
+    3. Fallback keyword search
+    """
 
-    for skill in COMMON_SKILLS:
-        pattern = r"\b" + re.escape(skill) + r"\b"
-        if re.search(pattern, text, re.IGNORECASE):
-            found.append(skill)
+    
+def extract_skills(text):
+    text_lower = text.lower()
+    found_skills = set()
 
-    return list(set(found))
+    for category in TECH_SKILL_DATABASE.values():
+        for skill in category:
+            if skill.lower() in text_lower:
+                found_skills.add(skill)
+
+    return sorted(list(found_skills))
 
 
 def extract_education(text):
