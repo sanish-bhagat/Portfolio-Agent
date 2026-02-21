@@ -5,6 +5,9 @@ import pdfplumber
 import requests
 import spacy
 import json
+from collections import Counter
+
+nlp = spacy.load("en_core_web_sm")
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -39,27 +42,46 @@ def extract_text_from_pdf(url):
         return ""
 
 
-nlp = spacy.load("en_core_web_lg")
+# def extract_name(text):
+#     lines = text.split("\n")[:10]  # Only first 10 lines
+#     top_text = "\n".join(lines)
+
+#     doc = nlp(top_text)
+
+#     for ent in doc.ents:
+#         if ent.label_ == "PERSON":
+#             candidate = ent.text.strip()
+
+#             # Reject lines that look like location
+#             if "," in candidate:
+#                 continue
+
+#             if 2 <= len(candidate.split()) <= 4:
+#                 return candidate
+
+#     return ""
 
 def extract_name(text):
-    """
-    Extract candidate PERSON entities from top of resume.
-    """
-    doc = nlp(text[:1000])  # only analyze first part for speed
+    lines = text.split("\n")[:8]
 
-    persons = [
-        ent.text.strip()
-        for ent in doc.ents
-        if ent.label_ == "PERSON"
-    ]
+    for line in lines:
+        clean = line.strip()
 
-    # Filter short/noisy entities
-    persons = [
-        p for p in persons
-        if 2 <= len(p.split()) <= 4
-    ]
+        # Skip empty
+        if not clean:
+            continue
 
-    return persons[0] if persons else ""
+        # Reject lines containing email, numbers, comma (likely location)
+        if "@" in clean or any(char.isdigit() for char in clean) or "," in clean:
+            continue
+
+        words = clean.split()
+
+        # Likely full name: 2–4 capitalized words
+        if 2 <= len(words) <= 4 and all(w[0].isupper() for w in words if w[0].isalpha()):
+            return clean
+
+    return ""
 
 
 
@@ -97,7 +119,7 @@ COMMON_SKILLS = [
     "Flask", "Django", "REST", "Git", "Linux"
 ]
 
-
+    
 def extract_skills(text):
     """
     Extract all skills mentioned in CV.
@@ -106,18 +128,17 @@ def extract_skills(text):
     2. Pattern-based extraction (comma / bullet separated lists)
     3. Fallback keyword search
     """
-
-    
-def extract_skills(text):
     text_lower = text.lower()
     found_skills = set()
 
     for category in TECH_SKILL_DATABASE.values():
         for skill in category:
-            if skill.lower() in text_lower:
+            pattern = rf"\b{re.escape(skill.lower())}\b"
+            if re.search(pattern, text_lower):
                 found_skills.add(skill)
 
-    return sorted(list(found_skills))
+    return sorted(found_skills)
+
 
 
 def extract_education(text):
@@ -140,12 +161,19 @@ def extract_education(text):
 
             # Look at next line for institution
             if i + 1 < len(lines):
-                entry["institution"] = lines[i + 1].strip()
+                next_line = lines[i + 1].strip()
+                if not next_line.startswith("CGPA") and not next_line.startswith("GPA"):
+                    entry["institution"] = next_line
 
             # Extract year
             year_match = re.search(r"(19|20)\d{2}", line)
             if year_match:
                 entry["year"] = year_match.group()
+                # Remove year from degree line if found
+                cleaned_degree = re.sub(r"[\s\-–,]*" + year_match.group() + r"[\s\-–,]*.*", "", entry["degree"]).strip()
+                # Remove trailing months
+                cleaned_degree = re.sub(r"[\s,]+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?$", "", cleaned_degree, flags=re.IGNORECASE).strip()
+                entry["degree"] = cleaned_degree
 
             education_entries.append(entry)
 
@@ -246,6 +274,10 @@ def is_work_role(line):
         'club', 'society', 'team'
     ]
     
+    # Ignore lines starting with bullet points or dashes
+    if re.match(r'^[\s]*[•\-\*]', line):
+        return False
+    
     has_work = any(title in lower for title in work_titles)
     has_exclude = any(role in lower for role in exclude_roles)
     
@@ -293,76 +325,134 @@ def extract_sections_with_content(text):
 
 
 def structure_experience(lines):
-    """
-    Convert cleaned experience lines into structured objects.
-    """
     experiences = []
-    i = 0
+    current_job = None
 
-    while i < len(lines):
-        line = lines[i]
+    for line in lines:
+        line = line.strip()
 
+        # New role
         if is_work_role(line):
-            job = {
-                "role": line,
+            if current_job:
+                experiences.append(current_job)
+
+            start_date = ""
+            end_date = ""
+            role_clean = line.strip()
+
+            # Extract duration from role line
+            duration_match = re.search(r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec).*?(19|20)\d{2}", line)
+            
+            if "–" in line:
+                parts = line.split("–")
+                start_date = parts[-2].strip() if len(parts) >= 2 else ""
+                end_date = parts[-1].strip()
+                
+                # Role clean needs to remove start date if it was captured in parts[-2]
+                # If format is "Role Start - End", parts[-2] is "Role Start"
+                # If format is "Role - Start - End", parts[-2] is "Start"
+                
+                # Refined logic:
+                if len(parts) >= 3:
+                     # Role - Start - End
+                     role_clean = parts[0].strip()
+                     start_date = parts[-2].strip()
+                else:
+                     # Role Start - End
+                     # We need to extract Start from parts[0]
+                     # Try to match date at end of parts[0]
+                     match = re.search(r"((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*[\s,]*\d{4})$", parts[0].strip(), re.IGNORECASE)
+                     if match:
+                         start_date = match.group(1)
+                         role_clean = parts[0][:match.start()].strip()
+                     else:
+                         role_clean = parts[0].strip()
+            
+            current_job = {
+                "role": role_clean,
                 "company": "",
-                "location": "",
-                "duration": "",
-                "description": []
+                "start_date": start_date,
+                "end_date": end_date,
+                "description": [],
+                "tech_stack": []
             }
 
-            i += 1
+        elif current_job:
 
-            # Capture company/location/date line
-            if i < len(lines):
-                possible_meta = lines[i]
+            # Duration detection (fallback if separate line)
+            if not current_job["start_date"] and re.search(r"\b(20\d{2}|19\d{2})\b", line):
+                current_job["duration"] = line # Keep legacy field or parse?
+                # Let's try to parse start/end from this line too
+                if "–" in line:
+                     parts = line.split("–")
+                     current_job["start_date"] = parts[0].strip()
+                     current_job["end_date"] = parts[-1].strip()
+                elif "-" in line:
+                     parts = line.split("-")
+                     current_job["start_date"] = parts[0].strip()
+                     current_job["end_date"] = parts[-1].strip()
 
-                # Duration pattern (basic)
-                if re.search(r"\b(20\d{2}|19\d{2})\b", possible_meta):
-                    job["duration"] = possible_meta
-                else:
-                    job["company"] = possible_meta
+            # Bullet description
+            elif line.startswith("•"):
+                current_job["description"].append(line)
 
-                i += 1
+            # Tech stack detection
+            elif "Technologies" in line or "Skills Used" in line:
+                if ":" in line:
+                    stack = line.split(":", 1)[1]
+                    techs = [t.strip() for t in stack.split(",") if t.strip()]
+                    current_job["tech_stack"] = techs
 
-            # Capture bullet points
-            while i < len(lines):
-                if is_work_role(lines[i]):
-                    break
+            # Company line (only once)
+            elif not current_job["company"] and line and line[0].isupper() and not line.startswith("CGPA") and not line.startswith("GPA") \
+                and not line.lower().startswith("technologies") and not line.lower().startswith("skills"):
+                current_job["company"] = line
+            
+            # Otherwise, treat as description continuation
+            else:
+                current_job["description"].append(line)
 
-                job["description"].append(lines[i])
-                i += 1
-
-            experiences.append(job)
-        else:
-            i += 1
+    if current_job:
+        experiences.append(current_job)
 
     return experiences
 
 
+
+
 def structure_projects(lines):
     projects = []
-    i = 0
+    current_project = None
 
-    while i < len(lines):
-        title = lines[i]
-        project = {
-            "title": title,
-            "description": []
-        }
+    for line in lines:
+        if not line.startswith("•") and "Tech Stack" not in line:
+            if current_project:
+                projects.append(current_project)
 
-        i += 1
+            current_project = {
+                "title": line.strip(),
+                "description": [],
+                "tech_stack": []
+            }
 
-        while i < len(lines):
-            if len(lines[i]) < 5 or lines[i].istitle():
-                break
+        else:
+            if "Tech Stack:" in line:
+                try:
+                    stack = line.split(":", 1)[1]
+                    techs = [t.strip() for t in stack.split(",")]
+                    if current_project:
+                        current_project["tech_stack"] = techs
+                except IndexError:
+                    pass # Malformed tech stack line
+            else:
+                if current_project:
+                    current_project["description"].append(line.strip())
 
-            project["description"].append(lines[i])
-            i += 1
-
-        projects.append(project)
+    if current_project:
+        projects.append(current_project)
 
     return projects
+
 
 
 
@@ -386,6 +476,21 @@ def parse_cv_from_url(url):
         "projects": structure_projects(sections["PROJECTS"]),
         "certifications": extract_certifications(text)
     }
+
+
+def extract_skills_with_frequency(text):
+    text_lower = text.lower()
+    skill_counts = Counter()
+
+    for category in TECH_SKILL_DATABASE.values():
+        for skill in category:
+            pattern = rf"\b{re.escape(skill.lower())}\b"
+            matches = re.findall(pattern, text_lower)
+            if matches:
+                skill_counts[skill] = len(matches)
+
+    return dict(skill_counts)
+
 
 
 
@@ -415,6 +520,5 @@ if __name__ == "__main__":
     
     result = parse_cv_from_url(args.url)
     
-    for key, value in result.items():
-        print(f"\n========= {key.upper()} =========\n")
-        print(value)
+    # Print as valid JSON for easier parsing/verification
+    print(json.dumps(result, indent=2))

@@ -12,6 +12,8 @@ lerna-debug.log*
 uploads/*
 user_states/*
 
+backend/sample_data.json
+
 node_modules
 dist
 dist-ssr
