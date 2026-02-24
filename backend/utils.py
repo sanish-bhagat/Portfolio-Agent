@@ -7,6 +7,33 @@ import spacy
 import json
 from collections import Counter
 
+try:
+    import docx
+except ImportError:
+    docx = None
+
+try:
+    from schema_validator import validate_schema, refine_with_validation
+except ImportError:
+    try:
+        from .schema_validator import validate_schema, refine_with_validation
+    except ImportError:
+        validate_schema = None
+        refine_with_validation = None
+
+try:
+    from langchain_ollama import ChatOllama
+except ImportError:
+    from langchain_community.chat_models import ChatOllama
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Initialize LLM for refinement (using Ollama)
+llm = ChatOllama(model="llama3:8b", temperature=0)
+
 nlp = spacy.load("en_core_web_sm")
 
 def load_json(path):
@@ -42,24 +69,26 @@ def extract_text_from_pdf(url):
         return ""
 
 
-# def extract_name(text):
-#     lines = text.split("\n")[:10]  # Only first 10 lines
-#     top_text = "\n".join(lines)
+def extract_text(file_path):
+    text = ""
+    try:
+        if file_path.lower().endswith(".pdf"):
+            with pdfplumber.open(file_path) as pdf:
+                for page in pdf.pages:
+                    text += (page.extract_text() or "") + "\n"
+        elif file_path.lower().endswith(".docx"):
+            if docx:
+                doc = docx.Document(file_path)
+                text = "\n".join([para.text for para in doc.paragraphs])
+            else:
+                print("Warning: python-docx not installed")
+        else:
+            print(f"Warning: Unsupported file type: {file_path}")
+    except Exception as e:
+        print(f"Error extracting text from {file_path}: {e}")
+    
+    return text.strip()
 
-#     doc = nlp(top_text)
-
-#     for ent in doc.ents:
-#         if ent.label_ == "PERSON":
-#             candidate = ent.text.strip()
-
-#             # Reject lines that look like location
-#             if "," in candidate:
-#                 continue
-
-#             if 2 <= len(candidate.split()) <= 4:
-#                 return candidate
-
-#     return ""
 
 def extract_name(text):
     lines = text.split("\n")[:8]
@@ -456,8 +485,7 @@ def structure_projects(lines):
 
 
 
-def parse_cv_from_url(url):
-    text = extract_text_from_pdf(url)
+def parse_cv(text):
     if not text:
         return {}
 
@@ -466,7 +494,7 @@ def parse_cv_from_url(url):
 
     structured_experience_data = structure_experience(sections["EXPERIENCE"])
 
-    return {
+    data = {
         "name": extract_name(text),
         "contact": extract_contact_details(text),
         "summary": extract_summary(text),
@@ -476,6 +504,36 @@ def parse_cv_from_url(url):
         "projects": structure_projects(sections["PROJECTS"]),
         "certifications": extract_certifications(text)
     }
+
+    if validate_schema:
+        try:
+            # First pass: Check if schema is valid
+            validated_data = validate_schema(json.dumps(data), data)
+            
+            # If validation failed (returned original data) or we want to force refinement for better structure
+            # We can use LLM to refine it. 
+            # Ideally, validate_schema should return a signal if it failed.
+            # Currently it returns original_json on failure.
+            
+            # Let's check if the returned data is actually structurally different/valid
+            # Or simpler: Just run refinement if we have the capability
+            
+            if refine_with_validation and llm:
+                print("Refining CV data with LLM...")
+                refined_data = refine_with_validation(llm, data)
+                return refined_data
+            
+            return validated_data
+        except Exception as e:
+            print(f"Validation/Refinement error: {e}")
+            return data
+            
+    return data
+
+
+def parse_cv_from_url(url):
+    text = extract_text_from_pdf(url)
+    return parse_cv(text)
 
 
 def extract_skills_with_frequency(text):
