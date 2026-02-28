@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { usePortfolioStore } from '@/store/portfolioStore';
+import { usePortfolioStore, CVData, PortfolioData } from '@/store/portfolioStore';
 import { StepIndicator } from '@/components/StepIndicator';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { SectionToggle } from '@/components/SectionToggle';
@@ -31,6 +31,7 @@ export default function PreviewPage() {
   const navigate = useNavigate();
   const { 
     cvData, 
+    portfolioData,
     userId,
     websiteConfig, 
     setCurrentStep, 
@@ -40,6 +41,7 @@ export default function PreviewPage() {
   } = usePortfolioStore(
     useShallow((state) => ({
       cvData: state.cvData,
+      portfolioData: state.portfolioData,
       userId: state.userId,
       websiteConfig: state.websiteConfig,
       setCurrentStep: state.setCurrentStep,
@@ -97,6 +99,7 @@ export default function PreviewPage() {
         // Also persist state
         await store_user_state_tool(userId, {
           cvData,
+          portfolioData,
           websiteConfig,
           deployment,
           currentStep: 'preview'
@@ -237,6 +240,7 @@ export default function PreviewPage() {
               ) : (
                 <PreviewContent 
                   cvData={cvData} 
+                  portfolioData={portfolioData}
                   theme={websiteConfig.theme} 
                   sections={visibleSections}
                   onEditSection={handleEditSection}
@@ -342,12 +346,14 @@ export default function PreviewPage() {
 // Preview Content Component with EditableBlock wrappers
 function PreviewContent({
   cvData,
+  portfolioData,
   theme,
   sections,
   onEditSection,
   onStyleSection,
 }: {
-  cvData: NonNullable<ReturnType<typeof usePortfolioStore.getState>['cvData']>;
+  cvData: CVData;
+  portfolioData: PortfolioData | null;
   theme: string;
   sections: { id: string; name: string }[];
   onEditSection: (sectionId: string) => void;
@@ -401,13 +407,13 @@ function PreviewContent({
               animate={{ opacity: 1, y: 0 }}
             >
               <h1 className="text-5xl font-bold font-display mb-4">
-                Hi, I'm {cvData.personal_info?.full_name || 'there'}
+                Hi, I'm {portfolioData?.hero?.name || cvData.personal_info?.full_name || 'there'}
               </h1>
               <p className={`text-xl ${theme === 'dark' ? 'text-background/70' : 'text-primary'} mb-4`}>
-                {cvData.personal_info?.headline}
+                {portfolioData?.hero?.tagline || cvData.personal_info?.headline}
               </p>
               <p className={`max-w-2xl mx-auto ${theme === 'dark' ? 'text-background/60' : 'text-muted-foreground'}`}>
-                {cvData.summary}
+                {portfolioData?.about?.summary || cvData.summary}
               </p>
               <div className="flex justify-center gap-4 mt-8">
                 <button className="px-6 py-3 rounded-lg gradient-primary text-primary-foreground font-medium">
@@ -434,7 +440,7 @@ function PreviewContent({
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold font-display mb-6">About Me</h2>
               <p className={`text-lg ${theme === 'dark' ? 'text-background/70' : 'text-muted-foreground'}`}>
-                {cvData.summary}
+                {portfolioData?.about?.summary || cvData.summary}
               </p>
             </div>
           </section>
@@ -453,25 +459,46 @@ function PreviewContent({
             <div className="max-w-5xl mx-auto">
               <h2 className="text-3xl font-bold font-display mb-8 text-center">Skills</h2>
               <div className="space-y-6">
-                {cvData.skills && Object.entries(cvData.skills).map(([category, skills]) => (
-                  <div key={category} className="text-center">
-                    <h3 className="text-sm font-semibold capitalize mb-3 opacity-70">{category}</h3>
+                {portfolioData ? (
+                  <div className="text-center">
                     <div className="flex flex-wrap justify-center gap-3">
-                      {Array.isArray(skills) && skills.map((skill: string, i: number) => (
-                        <span
-                          key={i}
-                          className={`px-4 py-2 rounded-full text-sm font-medium ${
-                            theme === 'dark'
-                              ? 'bg-background/10 text-background'
-                              : 'bg-primary/10 text-primary'
-                          }`}
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                      {[...(portfolioData.skills_section.primary_skills || []), ...(portfolioData.skills_section.secondary_skills || [])].map(
+                        (skill, i) => (
+                          <span
+                            key={i}
+                            className={`px-4 py-2 rounded-full text-sm font-medium ${
+                              theme === 'dark'
+                                ? 'bg-background/10 text-background'
+                                : 'bg-primary/10 text-primary'
+                            }`}
+                          >
+                            {skill}
+                          </span>
+                        )
+                      )}
                     </div>
                   </div>
-                ))}
+                ) : (
+                  cvData.skills && Object.entries(cvData.skills).map(([category, skills]) => (
+                    <div key={category} className="text-center">
+                      <h3 className="text-sm font-semibold capitalize mb-3 opacity-70">{category}</h3>
+                      <div className="flex flex-wrap justify-center gap-3">
+                        {Array.isArray(skills) && skills.map((skill: string, i: number) => (
+                          <span
+                            key={i}
+                            className={`px-4 py-2 rounded-full text-sm font-medium ${
+                              theme === 'dark'
+                                ? 'bg-background/10 text-background'
+                                : 'bg-primary/10 text-primary'
+                            }`}
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </section>
@@ -490,7 +517,7 @@ function PreviewContent({
             <div className="max-w-4xl mx-auto">
               <h2 className="text-3xl font-bold font-display mb-8 text-center">Experience</h2>
               <div className="space-y-8">
-                {Array.isArray(cvData.experience) && cvData.experience.map((exp, index) => (
+                {(portfolioData?.experience_timeline || cvData.experience).map((exp, index) => (
                   <div
                     key={index}
                     className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-background/5' : 'bg-card border border-border'}`}
@@ -503,11 +530,11 @@ function PreviewContent({
                         </p>
                       </div>
                       <span className={`text-sm ${theme === 'dark' ? 'text-background/50' : 'text-muted-foreground'}`}>
-                        {exp.duration}
+                        {'period' in exp ? exp.period : (exp as any).duration}
                       </span>
                     </div>
                     <ul className="mt-4 space-y-2">
-                      {Array.isArray(exp.description) && exp.description.map((item, i) => (
+                      {('highlights' in exp ? exp.highlights : (exp as any).description).map((item: string, i: number) => (
                         <li key={i} className={`text-sm flex items-start gap-2 ${theme === 'dark' ? 'text-background/60' : 'text-muted-foreground'}`}>
                           <span className="text-primary mt-1">•</span>
                           {item}
@@ -534,17 +561,17 @@ function PreviewContent({
             <div className="max-w-5xl mx-auto">
               <h2 className="text-3xl font-bold font-display mb-8 text-center">Projects</h2>
               <div className="grid md:grid-cols-2 gap-6">
-                {Array.isArray(cvData.projects) && cvData.projects.map((project, index) => (
+                {(portfolioData?.projects_section || cvData.projects).map((project, index) => (
                   <div
                     key={index}
                     className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-background/10' : 'bg-card border border-border'}`}
                   >
                     <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
                     <p className={`mb-4 ${theme === 'dark' ? 'text-background/60' : 'text-muted-foreground'}`}>
-                      {project.description}
+                      {'short_description' in project ? project.short_description : (project as any).description}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {Array.isArray(project.technologies) && project.technologies.map((tech) => (
+                      {(project.tech_stack || (project as any).technologies).map((tech: string) => (
                         <span
                           key={tech}
                           className={`px-2 py-1 rounded text-xs font-medium ${
@@ -610,14 +637,14 @@ function PreviewContent({
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <a
-                  href={`mailto:${cvData.personal_info?.email}`}
+                  href={`mailto:${portfolioData?.contact_section?.email || cvData.personal_info?.email}`}
                   className="px-6 py-3 rounded-lg gradient-primary text-primary-foreground font-medium"
                 >
-                  {cvData.personal_info?.email}
+                  {portfolioData?.contact_section?.email || cvData.personal_info?.email}
                 </a>
-                {cvData.personal_info?.linkedin && (
+                {(portfolioData?.contact_section?.linkedin || cvData.personal_info?.linkedin) && (
                   <a
-                    href={cvData.personal_info?.linkedin}
+                    href={portfolioData?.contact_section?.linkedin || cvData.personal_info?.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={`px-6 py-3 rounded-lg border ${theme === 'dark' ? 'border-background/20 text-background' : 'border-border'} font-medium`}
@@ -634,7 +661,7 @@ function PreviewContent({
       {/* Preview Footer */}
       <footer className={`px-8 py-10 border-t ${theme === 'dark' ? 'border-background/10' : 'border-border'} text-center`}>
         <p className={`text-sm ${theme === 'dark' ? 'text-background/50' : 'text-muted-foreground'}`}>
-          © {new Date().getFullYear()} {cvData.personal_info?.full_name || 'Portfolio'}. Built with PortfolioAI.
+          © {new Date().getFullYear()} {portfolioData?.hero?.name || cvData.personal_info?.full_name || 'Portfolio'}. Built with PortfolioAI.
         </p>
       </footer>
     </div>

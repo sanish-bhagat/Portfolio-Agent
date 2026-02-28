@@ -29,17 +29,19 @@ import { useShallow } from 'zustand/react/shallow';
 
 export default function ReviewPage() {
   const navigate = useNavigate();
-  const { 
-    cvData, 
+  const {
+    cvData,
+    portfolioData,
     userId,
-    setCurrentStep, 
-    updatePersonalInfo, 
-    updateSummary, 
-    websiteConfig, 
-    deployment 
+    setCurrentStep,
+    updatePersonalInfo,
+    updateSummary,
+    websiteConfig,
+    deployment,
   } = usePortfolioStore(
     useShallow((state) => ({
       cvData: state.cvData,
+      portfolioData: state.portfolioData,
       userId: state.userId,
       setCurrentStep: state.setCurrentStep,
       updatePersonalInfo: state.updatePersonalInfo,
@@ -176,13 +178,22 @@ export default function ReviewPage() {
             >
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-2xl font-bold font-display">{cvData.personal_info?.full_name || 'No Name'}</p>
-                  <p className="text-primary font-medium">{cvData.personal_info?.headline || 'No Headline'}</p>
+                  <p className="text-2xl font-bold font-display">
+                    {cvData.personal_info?.full_name ||
+                      portfolioData?.hero?.name ||
+                      cvData.name ||
+                      'No Name'}
+                  </p>
+                  <p className="text-primary font-medium">
+                    {cvData.personal_info?.headline ||
+                      portfolioData?.hero?.tagline ||
+                      'No Headline'}
+                  </p>
                 </div>
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>{cvData.personal_info?.email}</p>
-                  <p>{cvData.personal_info?.phone}</p>
-                  <p>{cvData.personal_info?.location}</p>
+                  <p>{cvData.personal_info?.email || portfolioData?.contact_section?.email}</p>
+                  <p>{cvData.personal_info?.phone || portfolioData?.contact_section?.phone}</p>
+                  <p>{cvData.personal_info?.location || portfolioData?.contact_section?.location}</p>
                 </div>
               </div>
               <p className="mt-4 text-muted-foreground">{cvData.summary}</p>
@@ -195,11 +206,24 @@ export default function ReviewPage() {
               onEdit={() => handleEdit('skills')}
             >
               <div className="space-y-4">
-                {cvData.skills && Object.entries(cvData.skills).map(([category, skills]) => (
-                  <div key={category}>
-                    <h4 className="text-sm font-semibold capitalize mb-2">{category}</h4>
+                {portfolioData?.skills_section ? (
+                  <div className="flex flex-wrap gap-2">
+                    {[...(portfolioData.skills_section.primary_skills || []), ...(portfolioData.skills_section.secondary_skills || [])].map(
+                      (skill, i) => (
+                        <span
+                          key={`${skill}-${i}`}
+                          className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium"
+                        >
+                          {skill}
+                        </span>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  cvData.skills &&
+                  Array.isArray(cvData.skills) && (
                     <div className="flex flex-wrap gap-2">
-                      {Array.isArray(skills) && skills.map((skill: string, i: number) => (
+                      {cvData.skills.map((skill: string, i: number) => (
                         <span
                           key={i}
                           className="px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium"
@@ -208,8 +232,8 @@ export default function ReviewPage() {
                         </span>
                       ))}
                     </div>
-                  </div>
-                ))}
+                  )
+                )}
               </div>
             </EditableCard>
 

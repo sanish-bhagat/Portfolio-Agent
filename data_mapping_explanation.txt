@@ -1,0 +1,119 @@
+# DATA MAPPING EXPLANATION: BACKEND TO FRONTEND
+
+This document explains how CV data extracted by the backend is transformed and mapped to the frontend portfolio structure.
+
+---
+
+## 1. BACKEND CV DATA STRUCTURE (Input to Mapper)
+This is the raw structured JSON produced by `utils.py` after NLP extraction and LLM refinement.
+
+{
+  "name": "string",
+  "contact": {
+    "email": "string",
+    "phone": "string",
+    "links": ["string"],
+    "location": "string"
+  },
+  "summary": "string",
+  "skills": ["string"],
+  "education": [
+    {
+      "degree": "string",
+      "institution": "string",
+      "year": "string"
+    }
+  ],
+  "experience": [
+    {
+      "role": "string",
+      "company": "string",
+      "start_date": "string",
+      "end_date": "string",
+      "description": ["string"],
+      "tech_stack": ["string"]
+    }
+  ],
+  "projects": [
+    {
+      "title": "string",
+      "description": ["string"],
+      "tech_stack": ["string"]
+    }
+  ],
+  "certifications": ["string"]
+}
+
+---
+
+## 2. FRONTEND PORTFOLIO DATA STRUCTURE (Output from Mapper)
+This is the UI-ready JSON produced by `mapping.py` and stored in the frontend `portfolioStore.ts`.
+
+{
+  "hero": {
+    "name": "string",
+    "tagline": "string",
+    "location": "string"
+  },
+  "about": {
+    "summary": "string"
+  },
+  "skills_section": {
+    "primary_skills": ["string"],
+    "secondary_skills": ["string"]
+  },
+  "experience_timeline": [
+    {
+      "role": "string",
+      "company": "string",
+      "period": "string",
+      "highlights": ["string"],
+      "tech_stack": ["string"]
+    }
+  ],
+  "projects_section": [
+    {
+      "title": "string",
+      "short_description": "string",
+      "tech_stack": ["string"],
+      "highlights": ["string"]
+    }
+  ],
+  "contact_section": {
+    "email": "string",
+    "phone": "string",
+    "links": ["string"],
+    "location": "string"
+  }
+}
+
+---
+
+## 3. FIELD-BY-FIELD MAPPING
+
+| Backend CV Field | -> | Frontend Portfolio Field | Logic / Transformation |
+| :--- | :---: | :--- | :--- |
+| `name` | -> | `hero.name` | Direct mapping |
+| `summary` | -> | `hero.tagline` | Summary acts as the hero tagline |
+| `contact.location` | -> | `hero.location` | Location shown in hero section |
+| `summary` | -> | `about.summary` | Summary repeated in About section |
+| `skills` (0-7) | -> | `skills_section.primary_skills` | First 8 skills are highlighted |
+| `skills` (8+) | -> | `skills_section.secondary_skills` | Remaining skills are secondary |
+| `experience[i].role` | -> | `experience_timeline[i].role` | Direct mapping |
+| `experience[i].company` | -> | `experience_timeline[i].company` | Direct mapping |
+| `exp.start_date` + `exp.end_date`| -> | `experience_timeline[i].period` | Combined into "Start - End" string |
+| `experience[i].description` | -> | `experience_timeline[i].highlights` | Limits to first 4 bullet points |
+| `experience[i].tech_stack` | -> | `experience_timeline[i].tech_stack` | Direct mapping |
+| `projects[i].title` | -> | `projects_section[i].title` | Direct mapping |
+| `projects[i].description[0]` | -> | `projects_section[i].short_description`| First line used as project summary |
+| `projects[i].tech_stack` | -> | `projects_section[i].tech_stack` | Direct mapping |
+| `projects[i].description` | -> | `projects_section[i].highlights` | Limits to first 3 bullet points |
+| `contact` | -> | `contact_section` | Direct mapping of the contact object |
+
+---
+
+## 4. FLOW SUMMARY
+1. **Extraction**: `utils.py` pulls raw text and structures it into the **Backend CV Schema**.
+2. **Refinement**: Ollama (Llama 3) fixes any parsing errors in that schema.
+3. **Transformation**: `mapping.py` runs `map_to_portfolio()` to convert it into the **Frontend Portfolio Schema**.
+4. **Rendering**: The React frontend (`PreviewPage.tsx`) reads the mapped fields to build the UI components.

@@ -91,24 +91,44 @@ def extract_text(file_path):
 
 
 def extract_name(text):
+    """
+    Extract full name from the top of CV.
+    Priority:
+    1. Spacy NER (PERSON label)
+    2. Capitalized words at the very top (fallback)
+    """
+    # Try first 300 characters for NER
+    doc = nlp(text[:300])
+    
+    for ent in doc.ents:
+        if ent.label_ == "PERSON":
+            # Clean candidate
+            candidate = ent.text.strip()
+            # Basic validation: 2-4 words, no numbers, mostly letters
+            if 2 <= len(candidate.split()) <= 4 and all(c.isalpha() or c.isspace() for c in candidate):
+                return candidate
+
+    # Fallback heuristic: first few non-empty lines
     lines = text.split("\n")[:8]
-
-    for line in lines:
+    for i, line in enumerate(lines):
         clean = line.strip()
-
-        # Skip empty
         if not clean:
             continue
-
-        # Reject lines containing email, numbers, comma (likely location)
-        if "@" in clean or any(char.isdigit() for char in clean) or "," in clean:
-            continue
-
+            
+        # If it's the very first non-empty line and it's short and capitalized, it's likely the name
         words = clean.split()
+        if i == 0 and 2 <= len(words) <= 4 and all(w[0].isupper() for w in words if w):
+             return clean
 
-        # Likely full name: 2–4 capitalized words
-        if 2 <= len(words) <= 4 and all(w[0].isupper() for w in words if w[0].isalpha()):
-            return clean
+        # Skip common non-name headers
+        if any(keyword in clean.lower() for keyword in ["resume", "cv", "curriculum", "contact", "email", "phone", "profile"]):
+            continue
+            
+        # Look for 2-3 capitalized words
+        if 2 <= len(words) <= 3 and all(w[0].isupper() for w in words if w):
+            # Check for email/phone markers
+            if "@" not in clean and not re.search(r"\d{5,}", clean):
+                return clean
 
     return ""
 
@@ -153,56 +173,170 @@ def extract_skills(text):
     """
     Extract all skills mentioned in CV.
     Priority:
-    1. Skills section extraction
-    2. Pattern-based extraction (comma / bullet separated lists)
-    3. Fallback keyword search
+    1. Look for explicit skills section and parse items
+    2. Global database search (fallback)
     """
-    text_lower = text.lower()
     found_skills = set()
+    
+    # Try to find a dedicated skills section
+    skills_keywords = [r"SKILLS", r"TECHNOLOGIES", r"TECH STACK", r"SKILLS USED"]
+    lines = text.split("\n")
+    
+    in_skills_section = False
+    skills_text = ""
+    
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+            
+        # Check if line looks like a header
+        if any(re.match(rf"^{kw}$", stripped.upper()) for kw in skills_keywords):
+            in_skills_section = True
+            continue
+            
+        # If in section, collect content until next section
+        if in_skills_section:
+            if is_section_header(stripped) != "OTHER":
+                in_skills_section = False
+                break
+            skills_text += stripped + ", "
 
+    # If we found a skills section, try to split by commas/bullets
+    if skills_text:
+        # Split by comma, bullet, vertical bar, or newline (since we joined with ", " but raw might have newlines)
+        raw_items = re.split(r"[,•|\-\n]", skills_text)
+        for item in raw_items:
+            item_clean = item.strip()
+            if not item_clean:
+                continue
+                
+            # Basic validation: check if it's in our database or a short string
+            # Skills usually aren't long sentences
+            if len(item_clean.split()) <= 4:
+                # Check for exact matches in database first
+                matched = False
+                for category in TECH_SKILL_DATABASE.values():
+                    for db_skill in category:
+                        if db_skill.lower() == item_clean.lower():
+                            found_skills.add(db_skill)
+                            matched = True
+                            break
+                    if matched: break
+                
+                # If not matched but looks like a technical term (capitalized or short)
+                if not matched and (2 <= len(item_clean) <= 20):
+                    # Only add if it's not a common English word or sentence fragment
+                    # (Simple heuristic: must have at least one capital or be in database)
+                    if any(c.isupper() for c in item_clean) or len(item_clean.split()) == 1:
+                        found_skills.add(item_clean)
+
+    # Global database search as fallback/supplement
+    text_lower = text.lower()
     for category in TECH_SKILL_DATABASE.values():
         for skill in category:
+            # Avoid re-adding if already found
+            if any(s.lower() == skill.lower() for s in found_skills):
+                continue
+                
             pattern = rf"\b{re.escape(skill.lower())}\b"
             if re.search(pattern, text_lower):
                 found_skills.add(skill)
 
-    return sorted(found_skills)
+    return sorted(list(found_skills))
 
 
 
 def extract_education(text):
+    """
+    Extract structured education entries from CV text.
+    Tries to capture:
+    - degree (without years)
+    - institution (from neighbouring lines)
+    - year (last year in the duration)
+    - duration (human‑readable range like "2018 - 2022")
+    """
+    text = normalize_text(text)
     lines = text.split("\n")
     education_entries = []
 
     degree_keywords = [
         "bachelor", "master", "b.tech", "m.tech",
-        "bsc", "msc", "phd", "diploma"
+        "bsc", "msc", "phd", "diploma", "b.e", "bca", "mca"
     ]
 
     for i, line in enumerate(lines):
         lower = line.lower()
         if any(deg in lower for deg in degree_keywords):
+            degree_line = line.strip()
+
+            # Try to infer institution from surrounding lines
+            institution = ""
+
+            def looks_like_institution(s: str) -> bool:
+                s_lower = s.lower()
+                if not s or s_lower.startswith(("cgpa", "gpa")):
+                    return False
+                keywords = [
+                    "university", "college", "institute", "school",
+                    "academy", "iit", "nit", "of technology"
+                ]
+                return any(k in s_lower for k in keywords)
+
+            # Prefer previous line as institution if it looks like one
+            if i - 1 >= 0:
+                prev_line = lines[i - 1].strip()
+                if looks_like_institution(prev_line):
+                    institution = prev_line
+
+            # Fallback to next line (existing behaviour) if needed
+            if not institution and i + 1 < len(lines):
+                next_line = lines[i + 1].strip()
+                if looks_like_institution(next_line):
+                    institution = next_line
+
+            # Collect years from current + neighbour line for duration
+            neighbour = lines[i + 1] if i + 1 < len(lines) else ""
+            year_matches = re.findall(r"(?:19|20)\d{2}", degree_line + " " + neighbour)
+            unique_years = []
+            for full in year_matches:
+                if full not in unique_years:
+                    unique_years.append(full)
+
+            duration = ""
+            year_value = ""
+            if unique_years:
+                # Ensure chronological order if multiple years present
+                try:
+                    sorted_years = sorted(unique_years, key=int)
+                except ValueError:
+                    sorted_years = unique_years
+
+                if len(sorted_years) >= 2:
+                    duration = f"{sorted_years[0]} - {sorted_years[-1]}"
+                    year_value = sorted_years[-1]
+                else:
+                    duration = sorted_years[0]
+                    year_value = sorted_years[0]
+
             entry = {
-                "degree": line.strip(),
-                "institution": "",
-                "year": ""
+                "degree": degree_line,
+                "institution": institution,
+                "year": year_value,
+                "duration": duration
             }
 
-            # Look at next line for institution
-            if i + 1 < len(lines):
-                next_line = lines[i + 1].strip()
-                if not next_line.startswith("CGPA") and not next_line.startswith("GPA"):
-                    entry["institution"] = next_line
-
-            # Extract year
-            year_match = re.search(r"(19|20)\d{2}", line)
-            if year_match:
-                entry["year"] = year_match.group()
-                # Remove year from degree line if found
-                cleaned_degree = re.sub(r"[\s\-–,]*" + year_match.group() + r"[\s\-–,]*.*", "", entry["degree"]).strip()
-                # Remove trailing months
-                cleaned_degree = re.sub(r"[\s,]+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?$", "", cleaned_degree, flags=re.IGNORECASE).strip()
-                entry["degree"] = cleaned_degree
+            # Remove explicit year/duration fragments from degree text
+            if entry["year"]:
+                cleaned_degree = re.sub(r"(19|20)\d{2}", "", entry["degree"])
+                cleaned_degree = re.sub(r"[\-\–/,]+", " ", cleaned_degree)
+                cleaned_degree = re.sub(
+                    r"[\s,]+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?",
+                    "",
+                    cleaned_degree,
+                    flags=re.IGNORECASE,
+                )
+                entry["degree"] = cleaned_degree.strip()
 
             education_entries.append(entry)
 
@@ -422,8 +556,9 @@ def structure_experience(lines):
                      current_job["end_date"] = parts[-1].strip()
 
             # Bullet description
-            elif line.startswith("•"):
-                current_job["description"].append(line)
+            elif re.match(r'^[\s]*[•\-\*]', line):
+                clean_bullet = re.sub(r'^[\s]*[•\-\*]\s*', '', line)
+                current_job["description"].append(clean_bullet)
 
             # Tech stack detection
             elif "Technologies" in line or "Skills Used" in line:
@@ -453,29 +588,88 @@ def structure_projects(lines):
     projects = []
     current_project = None
 
+    def looks_like_title(line: str) -> bool:
+        clean = line.strip()
+        if not clean:
+            return False
+
+        # Very long sentences with periods are likely descriptions
+        if len(clean) > 140:
+            return False
+
+        words = clean.split()
+        if clean.endswith(".") and len(words) > 12:
+            return False
+
+        # Patterns like "Project Name | Tech1, Tech2" or "Project Name - X"
+        if " | " in clean or " - " in clean:
+            return True
+
+        # Titles usually have majority of words capitalised
+        alpha_words = [w for w in words if any(c.isalpha() for c in w)]
+        if not alpha_words:
+            return False
+
+        caps = sum(1 for w in alpha_words if w[0].isupper())
+        if caps >= max(1, len(alpha_words) // 2):
+            return True
+
+        # Short all‑caps strings also look like titles
+        if clean.isupper() and len(alpha_words) <= 8:
+            return True
+
+        return False
+
     for line in lines:
-        if not line.startswith("•") and "Tech Stack" not in line:
-            if current_project:
-                projects.append(current_project)
+        line = line.strip()
+        if not line:
+            continue
 
-            current_project = {
-                "title": line.strip(),
-                "description": [],
-                "tech_stack": []
-            }
+        # Check if line is a bullet point or tech stack
+        is_bullet = re.match(r'^[\s]*[•\-\*]', line)
+        lower = line.lower()
+        is_tech_stack = (
+            "tech stack" in lower
+            or "technologies" in lower
+            or "technologies used" in lower
+            or "tools used" in lower
+            or lower.startswith("stack:")
+        )
 
-        else:
-            if "Tech Stack:" in line:
-                try:
-                    stack = line.split(":", 1)[1]
-                    techs = [t.strip() for t in stack.split(",")]
-                    if current_project:
-                        current_project["tech_stack"] = techs
-                except IndexError:
-                    pass # Malformed tech stack line
-            else:
+        if not is_bullet and not is_tech_stack:
+            if current_project is None or looks_like_title(line):
+                # Likely a new project title
                 if current_project:
-                    current_project["description"].append(line.strip())
+                    projects.append(current_project)
+
+                current_project = {
+                    "title": line,
+                    "description": [],
+                    "tech_stack": []
+                }
+            else:
+                # Continuation line for the current project description
+                current_project["description"].append(line)
+
+        elif current_project:
+            if is_tech_stack:
+                # Extract technologies from "Tech Stack: ..." / "Technologies Used: ..." etc.
+                stack_part = ""
+                if ":" in line:
+                    stack_part = line.split(":", 1)[1]
+                else:
+                    # Handle "Tech Stack - React, Node" style
+                    parts = re.split(r"[-–]", line, maxsplit=1)
+                    if len(parts) == 2:
+                        stack_part = parts[1]
+
+                if stack_part:
+                    techs = [t.strip() for t in stack_part.split(",") if t.strip()]
+                    current_project["tech_stack"] = techs
+            else:
+                # Add to description, cleaning bullet marker
+                clean_bullet = re.sub(r'^[\s]*[•\-\*]\s*', '', line)
+                current_project["description"].append(clean_bullet)
 
     if current_project:
         projects.append(current_project)
@@ -484,6 +678,33 @@ def structure_projects(lines):
 
 
 
+def remove_placeholder_tokens(data):
+    PLACEHOLDERS = {
+        "bullet1", "bullet2", "Tech1", "Tech2",
+        "string", "example", "description"
+    }
+
+    for exp in data.get("experience", []):
+        exp["description"] = [
+            d for d in exp.get("description", [])
+            if d.strip() not in PLACEHOLDERS
+        ]
+        exp["tech_stack"] = [
+            t for t in exp.get("tech_stack", [])
+            if t.strip() not in PLACEHOLDERS
+        ]
+
+    for proj in data.get("projects", []):
+        proj["description"] = [
+            d for d in proj.get("description", [])
+            if d.strip() not in PLACEHOLDERS
+        ]
+        proj["tech_stack"] = [
+            t for t in proj.get("tech_stack", [])
+            if t.strip() not in PLACEHOLDERS
+        ]
+
+    return data
 
 def parse_cv(text):
     if not text:
@@ -505,29 +726,18 @@ def parse_cv(text):
         "certifications": extract_certifications(text)
     }
 
+    # Always sanitize deterministic output
+    data = remove_placeholder_tokens(data)
+
     if validate_schema:
         try:
-            # First pass: Check if schema is valid
             validated_data = validate_schema(json.dumps(data), data)
-            
-            # If validation failed (returned original data) or we want to force refinement for better structure
-            # We can use LLM to refine it. 
-            # Ideally, validate_schema should return a signal if it failed.
-            # Currently it returns original_json on failure.
-            
-            # Let's check if the returned data is actually structurally different/valid
-            # Or simpler: Just run refinement if we have the capability
-            
-            if refine_with_validation and llm:
-                print("Refining CV data with LLM...")
-                refined_data = refine_with_validation(llm, data)
-                return refined_data
-            
+            validated_data = remove_placeholder_tokens(validated_data)
             return validated_data
         except Exception as e:
-            print(f"Validation/Refinement error: {e}")
+            print(f"Validation error: {e}")
             return data
-            
+
     return data
 
 

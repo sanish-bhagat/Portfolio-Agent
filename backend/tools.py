@@ -8,9 +8,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 # Setup logging
 logger = logging.getLogger(__name__)
 try:
-    from .utils import extract_text
+    from .utils import extract_text, parse_cv
 except ImportError:
-    from utils import extract_text
+    from utils import extract_text, parse_cv
 
 # In-memory store for simplicity, could be replaced with a database
 USER_STATE_DIR = "user_states"
@@ -118,13 +118,14 @@ def structure_resume(text: str) -> dict:
 
 @tool
 def parse_cv_tool(file_path: str) -> dict:
-    """Extract structured information from a CV (PDF/DOCX)."""
+    """Extract structured information from a CV (PDF/DOCX) using NLP and LLM refinement."""
     raw_text = extract_text(file_path)
 
     if not raw_text.strip():
         raise ValueError("Empty CV text extracted")
 
-    structured_data = structure_resume(raw_text)
+    # This now uses NLP + Ollama Refinement + Schema Validation
+    structured_data = parse_cv(raw_text)
     return structured_data
 
 @tool
@@ -145,8 +146,8 @@ def retrieve_user_state_tool(user_id: str) -> dict:
         return json.load(f)
 
 @tool
-def generate_site_tool(cv_data: dict, theme: str, layout: str) -> dict:
-    """Generate portfolio website using predefined templates."""
+def generate_site_tool(cv_data: dict, portfolio_data: dict, theme: str, layout: str) -> dict:
+    """Generate portfolio website using predefined templates and mapped portfolio data."""
     # Using UUID for unique repo paths as requested
     repo_path = f"generated_sites/{uuid4()}"
     return {

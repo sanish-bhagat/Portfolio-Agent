@@ -13,12 +13,15 @@ logger = logging.getLogger(__name__)
 # Load environment variables from .env file
 load_dotenv()
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from langgraph.graph import StateGraph
+from pydantic import BaseModel
 
-# Fix relative import for running script directly
 try:
+    from .utils import extract_text, parse_cv
+    from .mapping import map_to_portfolio
+    from .llm_enhancer import enhance_portfolio_content
     from .tools import (
         parse_cv_tool,
         store_user_state_tool,
@@ -29,6 +32,9 @@ try:
         deploy_site_tool
     )
 except ImportError:
+    from utils import extract_text, parse_cv
+    from mapping import map_to_portfolio
+    from llm_enhancer import enhance_portfolio_content
     from tools import (
         parse_cv_tool,
         store_user_state_tool,
@@ -54,9 +60,11 @@ app.add_middleware(
 graph = StateGraph(state_schema=dict)
 
 graph.add_node("parse_cv", lambda state: {"cv_data": parse_cv_tool.invoke(state["file_path"])})
+graph.add_node("map_portfolio", lambda state: {"portfolio_data": map_to_portfolio(state["cv_data"])})
 graph.add_node("confirm_cv", lambda state: state)
 graph.add_node("generate_site", lambda state: {"site": generate_site_tool.invoke({
     "cv_data": state["cv_data"], 
+    "portfolio_data": state["portfolio_data"],
     "theme": state.get("theme", "modern"), 
     "layout": "default"
 })})
@@ -65,7 +73,8 @@ graph.add_node("edit_site", lambda state: {"preview": update_site_tool.invoke(st
 graph.add_node("deploy_site", lambda state: {"deployment": deploy_site_tool.invoke(state["site"]["repo_path"], "vercel")})
 
 graph.set_entry_point("parse_cv")
-graph.add_edge("parse_cv", "confirm_cv")
+graph.add_edge("parse_cv", "map_portfolio")
+graph.add_edge("map_portfolio", "confirm_cv")
 
 # Note: Conditional edges in LangGraph usually require a function that returns the next node name
 def check_confirmation(state):
@@ -88,40 +97,122 @@ graph.add_edge("preview_site", "deploy_site")
 # Compile graph (optional, but good practice)
 # runnable = graph.compile()
 
+class StoreStateRequest(BaseModel):
+    user_id: str
+    state: dict
+
+
 # Temporary directory for uploads
 UPLOAD_DIR = "uploads"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
+
+@app.post("/store-state")
+async def store_state(payload: StoreStateRequest):
+    """
+    Store user CV/portfolio state for later site generation.
+    This mirrors the behaviour of the LangChain store_user_state_tool.
+    """
+    try:
+        store_user_state_tool.invoke(
+            {
+                "user_id": payload.user_id,
+                "state": payload.state,
+            }
+        )
+        return {"status": "success", "user_id": payload.user_id}
+    except Exception as e:
+        logger.error(f"Error storing state for user {payload.user_id}: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/upload-cv")
-async def upload_cv(file: UploadFile = File(...)):
+async def upload_cv(file: UploadFile = File(...), enhancement_mode: str = "off"):
     user_id = str(uuid4())
     file_path = os.path.join(UPLOAD_DIR, f"{user_id}_{file.filename}")
-    
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     
     try:
-        logger.info(f"Processing upload for user {user_id}: {file.filename}")
-        # Using the tool directly for now as per user snippet
-        cv_data = parse_cv_tool.invoke(file_path)
+        logger.info(f"Processing upload for user {user_id}: {file.filename} (Enhancement: {enhancement_mode})")
         
-        logger.info(f"Successfully parsed CV for user {user_id}")
-        store_user_state_tool.invoke({"user_id": user_id, "state": {"cv_data": cv_data, "file_path": file_path}})
+        # 1. PDF/DOCX Extraction
+        text = extract_text(file_path)
+        if not text.strip():
+            raise ValueError("Empty CV text extracted")
+            
+        # 2. NLP Extractor + LLM Refinement + Schema Validator
+        cv_data = parse_cv(text)
         
-        return {"user_id": user_id, "cv_data": cv_data}
+        # 3. Optional LLM Enhancement
+        if enhancement_mode == "on":
+            logger.info(f"Applying LLM enhancement for user {user_id}")
+            cv_data = enhance_portfolio_content(cv_data)
+        
+        # 4. Portfolio Mapper
+        portfolio_data = map_to_portfolio(cv_data)
+        
+        logger.info(f"Successfully processed CV for user {user_id}")
+        
+        # Store both raw CV data and mapped portfolio data
+        store_user_state_tool.invoke({
+            "user_id": user_id, 
+            "state": {
+                "cv_data": cv_data, 
+                "portfolio_data": portfolio_data,
+                "file_path": file_path
+            }
+        })
+        
+        return {
+            "user_id": user_id, 
+            "cv_data": cv_data,
+            "portfolio_data": portfolio_data
+        }
     except Exception as e:
         logger.error(f"Error processing CV for user {user_id}: {str(e)}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/generate-site")
-async def generate_site(user_id: str, theme: str = "modern"):
+async def generate_site(
+    user_id: Optional[str] = None,
+    theme: str = "modern",
+    payload: Optional[dict] = Body(None),
+):
+    """
+    Generate a site for a given user.
+
+    Supports both:
+    - Query params:  /generate-site?user_id=...&theme=...
+    - JSON body:     { "user_id": "...", "theme": "..." }
+    """
+    # Prefer explicit JSON body if provided
+    if payload:
+        user_id = payload.get("user_id", user_id)
+        theme = payload.get("theme", theme)
+
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id is required")
+
     state = retrieve_user_state_tool.invoke(user_id)
     if "error" in state:
         raise HTTPException(status_code=404, detail=state["error"])
-    
-    site = generate_site_tool.invoke({"cv_data": state["cv_data"], "theme": theme, "layout": "default"})
+
+    # Support both backend-stored keys (cv_data) and frontend-stored keys (cvData)
+    cv_data = state.get("cv_data") or state.get("cvData")
+    portfolio_data = state.get("portfolio_data") or state.get("portfolioData")
+
+    if cv_data is None:
+        raise HTTPException(status_code=404, detail="cv_data not found in stored state")
+
+    site = generate_site_tool.invoke({
+        "cv_data": cv_data,
+        "portfolio_data": portfolio_data,
+        "theme": theme,
+        "layout": "default"
+    })
     # Update state with site info
     state["site"] = site
     store_user_state_tool.invoke({"user_id": user_id, "state": state})
