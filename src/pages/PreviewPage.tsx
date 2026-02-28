@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { usePortfolioStore, CVData, PortfolioData } from '@/store/portfolioStore';
+import { usePortfolioStore } from '@/store/portfolioStore';
+import { buildPortfolioFromCV } from '@/utils/portfolioMapper';
+import ModernPortfolio from '@/components/templates/ModernPortfolio';
+import MinimalPortfolio from '@/components/templates/MinimalPortfolio';
+import DarkPortfolio from '@/components/templates/DarkPortfolio';
 import { StepIndicator } from '@/components/StepIndicator';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { SectionToggle } from '@/components/SectionToggle';
 import { PreviewSkeleton } from '@/components/PreviewSkeleton';
 import { DeployModal } from '@/components/DeployModal';
-import { EditableBlock } from '@/components/EditableBlock';
 import { Button } from '@/components/ui/button';
 import { generate_site_tool, preview_site_tool, update_site_tool, store_user_state_tool } from '@/services/agent/tools';
 import {
@@ -128,6 +131,9 @@ export default function PreviewPage() {
     .filter((s) => s.visible)
     .sort((a, b) => a.order - b.order);
 
+  // Use portfolioData or build from cvData when missing (e.g. after refresh)
+  const displayPortfolioData = portfolioData || buildPortfolioFromCV(cvData);
+
   const handleEditSection = (sectionId: string) => {
     setEditingSection({ id: sectionId, type: 'content' });
     
@@ -237,15 +243,16 @@ export default function PreviewPage() {
             <div className="h-[calc(100%-52px)] overflow-auto">
               {isLoading ? (
                 <PreviewSkeleton />
+              ) : displayPortfolioData ? (
+                websiteConfig.theme === 'modern' ? (
+                  <ModernPortfolio portfolioData={displayPortfolioData} />
+                ) : websiteConfig.theme === 'minimal' ? (
+                  <MinimalPortfolio portfolioData={displayPortfolioData} />
+                ) : (
+                  <DarkPortfolio portfolioData={displayPortfolioData} />
+                )
               ) : (
-                <PreviewContent 
-                  cvData={cvData} 
-                  portfolioData={portfolioData}
-                  theme={websiteConfig.theme} 
-                  sections={visibleSections}
-                  onEditSection={handleEditSection}
-                  onStyleSection={handleStyleSection}
-                />
+                <div className="p-8 text-center text-muted-foreground">No portfolio data available.</div>
               )}
             </div>
           </motion.div>
@@ -343,327 +350,3 @@ export default function PreviewPage() {
   );
 }
 
-// Preview Content Component with EditableBlock wrappers
-function PreviewContent({
-  cvData,
-  portfolioData,
-  theme,
-  sections,
-  onEditSection,
-  onStyleSection,
-}: {
-  cvData: CVData;
-  portfolioData: PortfolioData | null;
-  theme: string;
-  sections: { id: string; name: string }[];
-  onEditSection: (sectionId: string) => void;
-  onStyleSection: (sectionId: string) => void;
-}) {
-  const themeClasses = {
-    modern: 'bg-background',
-    minimal: 'bg-background',
-    dark: 'bg-foreground text-background',
-  };
-
-  return (
-    <div className={`min-h-full ${themeClasses[theme as keyof typeof themeClasses]}`}>
-      {/* Preview Header */}
-      <EditableBlock
-        sectionId="header"
-        sectionName="Header"
-        onEdit={() => onEditSection('header')}
-        onStyleChange={() => onStyleSection('header')}
-      >
-        <header className={`px-8 py-6 border-b ${theme === 'dark' ? 'border-background/10' : 'border-border'}`}>
-          <nav className="flex items-center justify-between max-w-5xl mx-auto">
-            <span className="text-xl font-bold font-display">
-              {cvData.personal_info?.full_name?.split(' ')[0] || 'Portfolio'}
-            </span>
-            <div className="flex gap-6 text-sm">
-              {sections.slice(1).map((section) => (
-                <span
-                  key={section.id}
-                  className={`${theme === 'dark' ? 'text-background/70 hover:text-background' : 'text-muted-foreground hover:text-foreground'} cursor-pointer transition-colors`}
-                >
-                  {section.name}
-                </span>
-              ))}
-            </div>
-          </nav>
-        </header>
-      </EditableBlock>
-
-      {/* Hero Section */}
-      {sections.some((s) => s.id === 'hero') && (
-        <EditableBlock
-          sectionId="hero"
-          sectionName="Hero"
-          onEdit={() => onEditSection('hero')}
-          onStyleChange={() => onStyleSection('hero')}
-        >
-          <section className="px-8 py-20 text-center max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-5xl font-bold font-display mb-4">
-                Hi, I'm {portfolioData?.hero?.name || cvData.personal_info?.full_name || 'there'}
-              </h1>
-              <p className={`text-xl ${theme === 'dark' ? 'text-background/70' : 'text-primary'} mb-4`}>
-                {portfolioData?.hero?.tagline || cvData.personal_info?.headline}
-              </p>
-              <p className={`max-w-2xl mx-auto ${theme === 'dark' ? 'text-background/60' : 'text-muted-foreground'}`}>
-                {portfolioData?.about?.summary || cvData.summary}
-              </p>
-              <div className="flex justify-center gap-4 mt-8">
-                <button className="px-6 py-3 rounded-lg gradient-primary text-primary-foreground font-medium">
-                  View My Work
-                </button>
-                <button className={`px-6 py-3 rounded-lg border ${theme === 'dark' ? 'border-background/20 text-background' : 'border-border'} font-medium`}>
-                  Contact Me
-                </button>
-              </div>
-            </motion.div>
-          </section>
-        </EditableBlock>
-      )}
-
-      {/* About Section */}
-      {sections.some((s) => s.id === 'about') && (
-        <EditableBlock
-          sectionId="about"
-          sectionName="About"
-          onEdit={() => onEditSection('about')}
-          onStyleChange={() => onStyleSection('about')}
-        >
-          <section className={`px-8 py-16 ${theme === 'dark' ? 'bg-background/5' : 'bg-muted/30'}`}>
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold font-display mb-6">About Me</h2>
-              <p className={`text-lg ${theme === 'dark' ? 'text-background/70' : 'text-muted-foreground'}`}>
-                {portfolioData?.about?.summary || cvData.summary}
-              </p>
-            </div>
-          </section>
-        </EditableBlock>
-      )}
-
-      {/* Skills Section */}
-      {sections.some((s) => s.id === 'skills') && (
-        <EditableBlock
-          sectionId="skills"
-          sectionName="Skills"
-          onEdit={() => onEditSection('skills')}
-          onStyleChange={() => onStyleSection('skills')}
-        >
-          <section className={`px-8 py-16 ${theme === 'dark' ? '' : 'bg-muted/30'}`}>
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-3xl font-bold font-display mb-8 text-center">Skills</h2>
-              <div className="space-y-6">
-                {portfolioData ? (
-                  <div className="text-center">
-                    <div className="flex flex-wrap justify-center gap-3">
-                      {[...(portfolioData.skills_section.primary_skills || []), ...(portfolioData.skills_section.secondary_skills || [])].map(
-                        (skill, i) => (
-                          <span
-                            key={i}
-                            className={`px-4 py-2 rounded-full text-sm font-medium ${
-                              theme === 'dark'
-                                ? 'bg-background/10 text-background'
-                                : 'bg-primary/10 text-primary'
-                            }`}
-                          >
-                            {skill}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  cvData.skills && Object.entries(cvData.skills).map(([category, skills]) => (
-                    <div key={category} className="text-center">
-                      <h3 className="text-sm font-semibold capitalize mb-3 opacity-70">{category}</h3>
-                      <div className="flex flex-wrap justify-center gap-3">
-                        {Array.isArray(skills) && skills.map((skill: string, i: number) => (
-                          <span
-                            key={i}
-                            className={`px-4 py-2 rounded-full text-sm font-medium ${
-                              theme === 'dark'
-                                ? 'bg-background/10 text-background'
-                                : 'bg-primary/10 text-primary'
-                            }`}
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </section>
-        </EditableBlock>
-      )}
-
-      {/* Experience Section */}
-      {sections.some((s) => s.id === 'experience') && (
-        <EditableBlock
-          sectionId="experience"
-          sectionName="Experience"
-          onEdit={() => onEditSection('experience')}
-          onStyleChange={() => onStyleSection('experience')}
-        >
-          <section className="px-8 py-16">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold font-display mb-8 text-center">Experience</h2>
-              <div className="space-y-8">
-                {(portfolioData?.experience_timeline || cvData.experience).map((exp, index) => (
-                  <div
-                    key={index}
-                    className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-background/5' : 'bg-card border border-border'}`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="text-xl font-semibold">{exp.role}</h3>
-                        <p className={theme === 'dark' ? 'text-background/70' : 'text-primary'}>
-                          {exp.company}
-                        </p>
-                      </div>
-                      <span className={`text-sm ${theme === 'dark' ? 'text-background/50' : 'text-muted-foreground'}`}>
-                        {'period' in exp ? exp.period : (exp as any).duration}
-                      </span>
-                    </div>
-                    <ul className="mt-4 space-y-2">
-                      {('highlights' in exp ? exp.highlights : (exp as any).description).map((item: string, i: number) => (
-                        <li key={i} className={`text-sm flex items-start gap-2 ${theme === 'dark' ? 'text-background/60' : 'text-muted-foreground'}`}>
-                          <span className="text-primary mt-1">•</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </EditableBlock>
-      )}
-
-      {/* Projects Section */}
-      {sections.some((s) => s.id === 'projects') && (
-        <EditableBlock
-          sectionId="projects"
-          sectionName="Projects"
-          onEdit={() => onEditSection('projects')}
-          onStyleChange={() => onStyleSection('projects')}
-        >
-          <section className={`px-8 py-16 ${theme === 'dark' ? 'bg-background/5' : 'bg-muted/30'}`}>
-            <div className="max-w-5xl mx-auto">
-              <h2 className="text-3xl font-bold font-display mb-8 text-center">Projects</h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                {(portfolioData?.projects_section || cvData.projects).map((project, index) => (
-                  <div
-                    key={index}
-                    className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-background/10' : 'bg-card border border-border'}`}
-                  >
-                    <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
-                    <p className={`mb-4 ${theme === 'dark' ? 'text-background/60' : 'text-muted-foreground'}`}>
-                      {'short_description' in project ? project.short_description : (project as any).description}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {(project.tech_stack || (project as any).technologies).map((tech: string) => (
-                        <span
-                          key={tech}
-                          className={`px-2 py-1 rounded text-xs font-medium ${
-                            theme === 'dark' ? 'bg-background/10' : 'bg-muted'
-                          }`}
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </EditableBlock>
-      )}
-
-      {/* Education Section */}
-      {sections.some((s) => s.id === 'education') && (
-        <EditableBlock
-          sectionId="education"
-          sectionName="Education"
-          onEdit={() => onEditSection('education')}
-          onStyleChange={() => onStyleSection('education')}
-        >
-          <section className="px-8 py-16">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold font-display mb-8 text-center">Education</h2>
-              <div className="space-y-6">
-                {Array.isArray(cvData.education) && cvData.education.map((edu, index) => (
-                  <div
-                    key={index}
-                    className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-background/5' : 'bg-card border border-border'}`}
-                  >
-                    <h3 className="text-xl font-semibold">{edu.institution}</h3>
-                    <p className={theme === 'dark' ? 'text-background/70' : 'text-primary'}>
-                      {edu.degree}
-                    </p>
-                    <p className={`text-sm ${theme === 'dark' ? 'text-background/50' : 'text-muted-foreground'}`}>
-                      {edu.duration}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        </EditableBlock>
-      )}
-      {/* Contact Section */}
-      {sections.some((s) => s.id === 'contact') && (
-        <EditableBlock
-          sectionId="contact"
-          sectionName="Contact"
-          onEdit={() => onEditSection('contact')}
-          onStyleChange={() => onStyleSection('contact')}
-        >
-          <section className={`px-8 py-16 ${theme === 'dark' ? 'bg-background/5' : 'bg-muted/30'}`}>
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold font-display mb-6">Get In Touch</h2>
-              <p className={`mb-8 ${theme === 'dark' ? 'text-background/70' : 'text-muted-foreground'}`}>
-                I'm always open to discussing new opportunities and interesting projects.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a
-                  href={`mailto:${portfolioData?.contact_section?.email || cvData.personal_info?.email}`}
-                  className="px-6 py-3 rounded-lg gradient-primary text-primary-foreground font-medium"
-                >
-                  {portfolioData?.contact_section?.email || cvData.personal_info?.email}
-                </a>
-                {(portfolioData?.contact_section?.linkedin || cvData.personal_info?.linkedin) && (
-                  <a
-                    href={portfolioData?.contact_section?.linkedin || cvData.personal_info?.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`px-6 py-3 rounded-lg border ${theme === 'dark' ? 'border-background/20 text-background' : 'border-border'} font-medium`}
-                  >
-                    LinkedIn
-                  </a>
-                )}
-              </div>
-            </div>
-          </section>
-        </EditableBlock>
-      )}
-
-      {/* Preview Footer */}
-      <footer className={`px-8 py-10 border-t ${theme === 'dark' ? 'border-background/10' : 'border-border'} text-center`}>
-        <p className={`text-sm ${theme === 'dark' ? 'text-background/50' : 'text-muted-foreground'}`}>
-          © {new Date().getFullYear()} {portfolioData?.hero?.name || cvData.personal_info?.full_name || 'Portfolio'}. Built with PortfolioAI.
-        </p>
-      </footer>
-    </div>
-  );
-}

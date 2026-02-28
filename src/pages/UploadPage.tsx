@@ -11,7 +11,7 @@ import { parse_cv_tool, store_user_state_tool } from '@/services/agent/tools';
 
 export default function UploadPage() {
   const navigate = useNavigate();
-  const { setUploadedFile, uploadedFile, setIsExtracting, isExtracting, setCVData, setCurrentStep, setUserId, websiteConfig, deployment } =
+  const { setUploadedFile, uploadedFile, setIsExtracting, isExtracting, setCVData, setPortfolioData, setCurrentStep, setUserId, websiteConfig, deployment } =
     usePortfolioStore();
 
   const handleFileSelect = useCallback(
@@ -29,18 +29,20 @@ export default function UploadPage() {
     try {
       console.log('[UploadPage] Starting CV extraction...');
       // Call the agent's parse tool
-      const { cv_data, user_id } = await parse_cv_tool(uploadedFile);
+      const { cv_data, portfolio_data, user_id } = await parse_cv_tool(uploadedFile);
       
-      console.log('[UploadPage] Extraction successful:', { cv_data, user_id });
+      console.log('[UploadPage] Extraction successful:', { cv_data, portfolio_data, user_id });
       
       // Update store
       setCVData(cv_data);
+      setPortfolioData(portfolio_data);
       setUserId(user_id);
       
       // Persist state using agent's store tool
       console.log('[UploadPage] Persisting state...');
       await store_user_state_tool(user_id, {
         cvData: cv_data,
+        portfolioData: portfolio_data,
         websiteConfig,
         deployment,
         currentStep: 'review'

@@ -42,14 +42,26 @@ export interface Education {
 }
 
 export interface CVData {
-  personal_info: PersonalInfo;
+  personal_info?: PersonalInfo;
+  name?: string;
+  contact?: { email?: string; phone?: string; links?: string[]; location?: string };
   summary: string;
-  skills: Skills;
+  skills: string[] | Skills;
   experience: Experience[];
   projects: Project[];
   education: Education[];
   certifications: string[];
   achievements: string[];
+}
+
+// Mapped portfolio data (from backend mapping.py) - used by templates
+export interface PortfolioData {
+  hero: { name: string; tagline: string; location: string };
+  about: { summary: string };
+  skills_section: { primary_skills: string[]; secondary_skills: string[] };
+  experience_timeline: { role: string; company: string; period: string; highlights: string[]; tech_stack: string[] }[];
+  projects_section: { title: string; short_description: string; tech_stack: string[]; highlights: string[] }[];
+  contact_section: { full_name?: string; headline?: string; email: string; phone?: string; location?: string; linkedin?: string; github?: string; portfolio?: string };
 }
 
 // Types for website configuration
@@ -95,6 +107,8 @@ interface PortfolioStore {
   // CV Data
   cvData: CVData | null;
   setCVData: (data: CVData) => void;
+  portfolioData: PortfolioData | null;
+  setPortfolioData: (data: PortfolioData | null) => void;
   updatePersonalInfo: (info: Partial<PersonalInfo>) => void;
   updateSummary: (summary: string) => void;
   updateSkills: (skills: Skills) => void;
@@ -139,6 +153,7 @@ const initialState = {
   currentStep: 'landing' as BuilderStep,
   userId: null,
   cvData: null,
+  portfolioData: null,
   websiteConfig: {
     theme: 'modern' as ThemeType,
     sections: defaultSections,
@@ -162,13 +177,15 @@ export const usePortfolioStore = create<PortfolioStore>()(
 
       setCVData: (data) => set({ cvData: data }),
 
+      setPortfolioData: (data) => set({ portfolioData: data }),
+
       updatePersonalInfo: (info) => {
         const current = get().cvData;
         if (current) {
           set({
             cvData: {
               ...current,
-              personal_info: { ...current.personal_info, ...info },
+              personal_info: { ...(current.personal_info || {}), ...info },
             },
           });
         }
@@ -266,6 +283,7 @@ export const usePortfolioStore = create<PortfolioStore>()(
       partialize: (state) => ({
         userId: state.userId,
         cvData: state.cvData,
+        portfolioData: state.portfolioData,
         websiteConfig: state.websiteConfig,
         currentStep: state.currentStep,
       }),

@@ -1,4 +1,4 @@
-import { CVData, WebsiteConfig, DeploymentState, ThemeType, BuilderStep } from '@/store/portfolioStore';
+import { CVData, PortfolioData, WebsiteConfig, DeploymentState, ThemeType, BuilderStep } from '@/store/portfolioStore';
 
 export interface UserState {
   cvData: CVData | null;
@@ -13,7 +13,7 @@ const API_BASE_URL = 'http://localhost:8000';
  * Tool 1: CV Parsing Tool
  * Extracts factual information from a provided CV file (PDF or DOCX).
  */
-export async function parse_cv_tool(file: File): Promise<{ cv_data: CVData; user_id: string }> {
+export async function parse_cv_tool(file: File): Promise<{ cv_data: CVData; portfolio_data: PortfolioData; user_id: string }> {
   console.log('[Agent Tool] parse_cv_tool starting for:', file.name);
   
   const formData = new FormData();
@@ -32,6 +32,7 @@ export async function parse_cv_tool(file: File): Promise<{ cv_data: CVData; user
   console.log('[Agent Tool] parse_cv_tool completed');
   return {
     cv_data: data.cv_data,
+    portfolio_data: data.portfolio_data,
     user_id: data.user_id
   };
 }

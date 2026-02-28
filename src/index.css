@@ -6,7 +6,7 @@
    A modern, professional design with indigo primary and clean neutrals
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
@@ -81,6 +81,52 @@
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 215 25% 90%;
     --sidebar-ring: 238 70% 60%;
+
+    /* Template themes (Modern, Minimal, Dark) */
+    --modern-bg: 220 20% 97%;
+    --modern-fg: 222 47% 11%;
+    --modern-accent: 250 85% 60%;
+    --modern-accent-fg: 0 0% 100%;
+    --modern-card: 0 0% 100%;
+    --modern-card-fg: 222 47% 11%;
+    --modern-muted: 220 14% 90%;
+    --modern-muted-fg: 220 9% 46%;
+    --modern-gradient-from: 250 85% 60%;
+    --modern-gradient-to: 290 80% 55%;
+    --modern-tag-bg: 250 85% 95%;
+    --modern-tag-fg: 250 85% 40%;
+    --modern-tag-secondary-bg: 220 14% 93%;
+    --modern-tag-secondary-fg: 220 9% 40%;
+
+    --minimal-bg: 0 0% 100%;
+    --minimal-fg: 0 0% 9%;
+    --minimal-accent: 0 0% 9%;
+    --minimal-accent-fg: 0 0% 100%;
+    --minimal-card: 0 0% 98%;
+    --minimal-card-fg: 0 0% 9%;
+    --minimal-muted: 0 0% 95%;
+    --minimal-muted-fg: 0 0% 45%;
+    --minimal-border: 0 0% 88%;
+    --minimal-tag-bg: 0 0% 95%;
+    --minimal-tag-fg: 0 0% 25%;
+    --minimal-highlight: 0 0% 9%;
+    --minimal-highlight-fg: 0 0% 100%;
+
+    --dark-bg: 228 15% 8%;
+    --dark-fg: 210 20% 92%;
+    --dark-accent: 160 84% 50%;
+    --dark-accent-fg: 228 15% 8%;
+    --dark-card: 228 12% 12%;
+    --dark-card-fg: 210 20% 92%;
+    --dark-muted: 228 10% 18%;
+    --dark-muted-fg: 215 15% 55%;
+    --dark-border: 228 10% 20%;
+    --dark-tag-bg: 160 84% 15%;
+    --dark-tag-fg: 160 84% 60%;
+    --dark-tag-secondary-bg: 228 10% 18%;
+    --dark-tag-secondary-fg: 215 15% 60%;
+    --dark-gradient-from: 160 84% 50%;
+    --dark-gradient-to: 190 90% 50%;
   }
 
   .dark {
@@ -226,6 +272,33 @@
 
   .step-indicator-line.pending {
     @apply bg-border;
+  }
+
+  /* Template theme utilities */
+  .modern-gradient-text {
+    background: linear-gradient(135deg, hsl(var(--modern-gradient-from)), hsl(var(--modern-gradient-to)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .modern-gradient-bg {
+    background: linear-gradient(135deg, hsl(var(--modern-gradient-from)), hsl(var(--modern-gradient-to)));
+  }
+  .modern-card-hover {
+    @apply transition-all duration-300;
+  }
+  .modern-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -12px hsl(var(--modern-accent) / 0.15);
+  }
+  .dark-gradient-text {
+    background: linear-gradient(135deg, hsl(var(--dark-gradient-from)), hsl(var(--dark-gradient-to)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .dark-glow {
+    box-shadow: 0 0 30px -5px hsl(var(--dark-accent) / 0.2);
   }
 }
 
