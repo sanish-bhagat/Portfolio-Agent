@@ -59,14 +59,28 @@ def map_to_portfolio(cleaned_json: dict) -> dict:
     github = ""
     portfolio_link = ""
 
+    def normalize_url(url: str) -> str:
+        if not url:
+            return ""
+        url = url.strip()
+        if not (url.startswith("http://") or url.startswith("https://") or url.startswith("mailto:")):
+            return "https://" + url
+        return url
+
     for link in links:
         lower = str(link).lower()
         if "linkedin.com" in lower and not linkedin:
-            linkedin = link
+            linkedin = normalize_url(link)
         elif "github.com" in lower and not github:
-            github = link
+            github = normalize_url(link)
         elif not portfolio_link:
-            portfolio_link = link
+            portfolio_link = normalize_url(link)
+
+    # Clean location string from redundant info
+    location = contact.get("location", "") or ""
+    if "|" in location:
+        # Split by | and take the first part which is usually the actual location
+        location = location.split("|")[0].strip()
 
     portfolio["contact_section"] = {
         # Aligns with PersonalInfo / template contact schema
@@ -74,7 +88,7 @@ def map_to_portfolio(cleaned_json: dict) -> dict:
         "headline": cleaned_json.get("summary", ""),
         "email": contact.get("email", ""),
         "phone": contact.get("phone", ""),
-        "location": contact.get("location", ""),
+        "location": location,
         "linkedin": linkedin,
         "github": github,
         "portfolio": portfolio_link,

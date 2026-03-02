@@ -244,13 +244,28 @@ export default function PreviewPage() {
               {isLoading ? (
                 <PreviewSkeleton />
               ) : displayPortfolioData ? (
-                websiteConfig.theme === 'modern' ? (
-                  <ModernPortfolio portfolioData={displayPortfolioData} />
-                ) : websiteConfig.theme === 'minimal' ? (
-                  <MinimalPortfolio portfolioData={displayPortfolioData} />
-                ) : (
-                  <DarkPortfolio portfolioData={displayPortfolioData} />
-                )
+                (() => {
+                  const visibleSectionIds = websiteConfig.sections
+                    .filter((s) => s.visible)
+                    .map((s) => s.id);
+
+                  return websiteConfig.theme === 'modern' ? (
+                    <ModernPortfolio 
+                      portfolioData={displayPortfolioData} 
+                      visibleSections={visibleSectionIds}
+                    />
+                  ) : websiteConfig.theme === 'minimal' ? (
+                    <MinimalPortfolio 
+                      portfolioData={displayPortfolioData} 
+                      visibleSections={visibleSectionIds}
+                    />
+                  ) : (
+                    <DarkPortfolio 
+                      portfolioData={displayPortfolioData} 
+                      visibleSections={visibleSectionIds}
+                    />
+                  );
+                })()
               ) : (
                 <div className="p-8 text-center text-muted-foreground">No portfolio data available.</div>
               )}

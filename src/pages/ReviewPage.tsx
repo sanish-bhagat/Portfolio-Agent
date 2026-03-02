@@ -23,6 +23,7 @@ import {
   GraduationCap,
   Code,
   Lightbulb,
+  Mail,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useShallow } from 'zustand/react/shallow';
@@ -176,27 +177,42 @@ export default function ReviewPage() {
               icon={<User className="h-5 w-5" />}
               onEdit={() => handleEdit('personal')}
             >
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-2xl font-bold font-display">
-                    {cvData.personal_info?.full_name ||
-                      portfolioData?.hero?.name ||
-                      cvData.name ||
-                      'No Name'}
-                  </p>
-                  <p className="text-primary font-medium">
-                    {cvData.personal_info?.headline ||
-                      portfolioData?.hero?.tagline ||
-                      'No Headline'}
-                  </p>
-                </div>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>{cvData.personal_info?.email || portfolioData?.contact_section?.email}</p>
-                  <p>{cvData.personal_info?.phone || portfolioData?.contact_section?.phone}</p>
-                  <p>{cvData.personal_info?.location || portfolioData?.contact_section?.location}</p>
-                </div>
+              <div>
+                <p className="text-2xl font-bold font-display">
+                  {cvData.personal_info?.full_name ||
+                    portfolioData?.hero?.name ||
+                    cvData.name ||
+                    'No Name'}
+                </p>
+                <p className="text-primary font-medium">
+                  {cvData.personal_info?.headline ||
+                    portfolioData?.hero?.tagline ||
+                    'No Headline'}
+                </p>
               </div>
               <p className="mt-4 text-muted-foreground">{cvData.summary}</p>
+            </EditableCard>
+
+            {/* Contact Details */}
+            <EditableCard
+              title="Contact Details"
+              icon={<Mail className="h-5 w-5" />}
+              onEdit={() => handleEdit('personal')}
+            >
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</label>
+                  <p className="text-sm font-medium">{cvData.personal_info?.email || portfolioData?.contact_section?.email || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Phone</label>
+                  <p className="text-sm font-medium">{cvData.personal_info?.phone || portfolioData?.contact_section?.phone || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Location</label>
+                  <p className="text-sm font-medium">{cvData.personal_info?.location || portfolioData?.contact_section?.location || 'N/A'}</p>
+                </div>
+              </div>
             </EditableCard>
 
             {/* Skills */}
