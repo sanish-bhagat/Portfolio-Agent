@@ -11,7 +11,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
-load_dotenv()
+# Try current dir, then parent dir
+if not load_dotenv():
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,15 +64,13 @@ graph = StateGraph(state_schema=dict)
 graph.add_node("parse_cv", lambda state: {"cv_data": parse_cv_tool.invoke(state["file_path"])})
 graph.add_node("map_portfolio", lambda state: {"portfolio_data": map_to_portfolio(state["cv_data"])})
 graph.add_node("confirm_cv", lambda state: state)
-graph.add_node("generate_site", lambda state: {"site": generate_site_tool.invoke({
-    "cv_data": state["cv_data"], 
+graph.add_node("generate_site", lambda state: {"site": {"repo_path": generate_site_tool.invoke({
     "portfolio_data": state["portfolio_data"],
-    "theme": state.get("theme", "modern"), 
-    "layout": "default"
-})})
-graph.add_node("preview_site", lambda state: {"preview": preview_site_tool.invoke(state["site"]["repo_path"])})
-graph.add_node("edit_site", lambda state: {"preview": update_site_tool.invoke(state["site"]["repo_path"], state["updates"])})
-graph.add_node("deploy_site", lambda state: {"deployment": deploy_site_tool.invoke(state["site"]["repo_path"], "vercel")})
+    "theme": state.get("theme", "modern")
+})}})
+graph.add_node("preview_site", lambda state: {"preview": preview_site_tool.invoke({"repo_path": state["site"]["repo_path"]})})
+graph.add_node("edit_site", lambda state: {"preview": update_site_tool.invoke({"repo_path": state["site"]["repo_path"], "updates": state["updates"]})})
+graph.add_node("deploy_site", lambda state: {"deployment": deploy_site_tool.invoke({"repo_path": state["site"]["repo_path"]})})
 
 graph.set_entry_point("parse_cv")
 graph.add_edge("parse_cv", "map_portfolio")
@@ -204,20 +204,21 @@ async def generate_site(
     cv_data = state.get("cv_data") or state.get("cvData")
     portfolio_data = state.get("portfolio_data") or state.get("portfolioData")
 
-    if cv_data is None:
-        raise HTTPException(status_code=404, detail="cv_data not found in stored state")
+    if portfolio_data is None:
+        raise HTTPException(status_code=404, detail="portfolio_data not found in stored state")
 
-    site = generate_site_tool.invoke({
-        "cv_data": cv_data,
+    repo_path = generate_site_tool.invoke({
         "portfolio_data": portfolio_data,
-        "theme": theme,
-        "layout": "default"
+        "theme": theme
     })
+    
+    site = {"repo_path": repo_path}
+    
     # Update state with site info
     state["site"] = site
     store_user_state_tool.invoke({"user_id": user_id, "state": state})
     
-    preview = preview_site_tool.invoke(site["repo_path"])
+    preview = preview_site_tool.invoke({"repo_path": repo_path})
     return preview
 
 @app.post("/edit-site")
@@ -226,8 +227,9 @@ async def edit_site(user_id: str, updates: dict):
     if "error" in state or "site" not in state:
         raise HTTPException(status_code=404, detail="Site or user state not found")
     
-    update_result = update_site_tool.invoke({"repo_path": state["site"]["repo_path"], "updates": updates})
-    preview = preview_site_tool.invoke(state["site"]["repo_path"])
+    repo_path = state["site"]["repo_path"]
+    update_result = update_site_tool.invoke({"repo_path": repo_path, "updates": updates})
+    preview = preview_site_tool.invoke({"repo_path": repo_path})
     return preview
 
 @app.post("/deploy")
@@ -236,7 +238,7 @@ async def deploy(user_id: str):
     if "error" in state or "site" not in state:
         raise HTTPException(status_code=404, detail="Site or user state not found")
     
-    return deploy_site_tool.invoke({"repo_path": state["site"]["repo_path"], "platform": "vercel"})
+    return deploy_site_tool.invoke({"repo_path": state["site"]["repo_path"]})
 
 if __name__ == "__main__":
     import uvicorn
